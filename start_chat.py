@@ -4,22 +4,33 @@ import streamlit as st
 import dotenv
 import os
 
-from dachi_tutorials.teach import tutorial0_dummy, tutorial1_chat
+from dachi_tutorials.teach import (
+    tutorial0_dummy, tutorial1_chat,
+    tutorial2_signature, tutorial3_signature2
+)
 
 dotenv.load_dotenv()
 st.title('ChatGPT-like Clone')
 
+tutorial_map = {
+    'Tutorial 0': tutorial0_dummy.SampleTutorial,
+    'Tutorial 1': tutorial1_chat.ChatTutorial,
+    'Tutorial 2': tutorial2_signature.SignatureTutorial,
+    'Tutorial 3': tutorial3_signature2.SignatureTutorial2
+}
+
 
 def change_tutorial():
     if option != st.session_state.current_tutorial:
-        st.session_state.tutorial = tutorial1_chat.ChatTutorial() if st.session_state.current_tutorial == "Tutorial 1" else tutorial0_dummy.SampleTutorial()
+        st.session_state.tutorial = tutorial_map[st.session_state.current_tutorial]()
     print(f'Updated tutorial to {st.session_state.current_tutorial}')
 
 
 option = st.selectbox(
-    'Tutorial', ['Tutorial 0', 'Tutorial 1'], 
+    'Tutorial', list(tutorial_map.keys()), 
     key='current_tutorial', on_change=change_tutorial
 )
+
 
 if 'tutorial' not in st.session_state:
 
