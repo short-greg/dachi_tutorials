@@ -9,14 +9,15 @@ from dachi_tutorials.teach import tutorial0_dummy, tutorial1_chat
 dotenv.load_dotenv()
 st.title('ChatGPT-like Clone')
 
+
 def change_tutorial():
     if option != st.session_state.current_tutorial:
-        st.session_state.tutorial = tutorial1_chat.ChatTutorial() if st.session_state.current_tutorial == "Tutorial 2" else tutorial0_dummy.SampleTutorial()
-    # print(f'Updated tutorial to {st.session_state.current_tutorial}')
+        st.session_state.tutorial = tutorial1_chat.ChatTutorial() if st.session_state.current_tutorial == "Tutorial 1" else tutorial0_dummy.SampleTutorial()
+    print(f'Updated tutorial to {st.session_state.current_tutorial}')
 
 
 option = st.selectbox(
-    'Tutorial', ['Tutorial 1', 'Tutorial 2'], 
+    'Tutorial', ['Tutorial 0', 'Tutorial 1'], 
     key='current_tutorial', on_change=change_tutorial
 )
 
@@ -25,7 +26,7 @@ if 'tutorial' not in st.session_state:
     st.session_state.tutorial = tutorial0_dummy.SampleTutorial()
 
 
-for role, text in st.session_state.tutorial.loop(lambda role, m: role != 'system'):
+for role, text in st.session_state.tutorial.messages(lambda role, m: role != 'system'):
     with st.chat_message(role):
         st.markdown(text)
 

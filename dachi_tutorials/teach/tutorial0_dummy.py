@@ -8,18 +8,21 @@ class SampleTutorial(Tutorial):
 
     def __init__(self) -> None:
         super().__init__()
-        self.messages = []
-    
+        self._messages = []
+
+    def render_header(self):
+        pass
+
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        self.messages.append(('user', user_message))
+        self._messages.append(('user', user_message))
         response = "I am a dummy tutorial so I don't do anything."
 
         for c in response:
             yield c
-        self.messages.append(('assistant', response))
+        self._messages.append(('assistant', response))
     
-    def loop(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
-        for role, text in self.messages:
+    def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
+        for role, text in self._messages:
             if include is None or include(role, text):
                 yield role, text
