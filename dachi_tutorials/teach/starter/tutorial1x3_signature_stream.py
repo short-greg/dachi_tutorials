@@ -1,21 +1,28 @@
-from .base import Tutorial
+from ..base import Tutorial
 import dachi
 import typing
 import dachi.adapt.openai
 
 
-class SignatureTutorial(Tutorial):
+class Tutorial3(Tutorial):
+    """Streaming signature tutorial
+    """
 
     def __init__(self):
 
-        self.model = 'gpt-3.5-turbo'
+        self.model = 'gpt-4o-mini'
         self._messages = []
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-3.5-turbo'))
+    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def answer_question(self, question) -> str:
-        """Answer the user's question {question}
+        """Answer the user's question about movies. Don't talk about anything else 
+        
+        {question}
         """
         pass
+
+    def clear(self):
+        self._messages = []
 
     def render_header(self):
         pass
@@ -23,9 +30,11 @@ class SignatureTutorial(Tutorial):
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
         self._messages.append(dachi.TextMessage('user', user_message))
-        cur_message = self.answer_question(self._messages[-1])
-        yield cur_message
-        self._messages.append(dachi.TextMessage('assistant', cur_message))
+        res = ''
+        for d, c in self.answer_question.stream_forward(self._messages[-1]):
+            yield c
+            res += c
+        self._messages.append(dachi.TextMessage('assistant', res))
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._messages:
