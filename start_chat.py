@@ -11,7 +11,8 @@ from dachi_tutorials.teach.starter import (
     tutorial1x6_proactive
 )
 from dachi_tutorials.teach.instruct import (
-    tutorial2x1_simple
+    tutorial2x1_simple, tutorial2x2_with_struct,
+    tutorial2x3_with_ref
 )
 
 dotenv.load_dotenv()
@@ -26,6 +27,8 @@ tutorial_map = {
     'Tutorial 1-5': tutorial1x5_with_history.Tutorial5,
     'Tutorial 1-6': tutorial1x6_proactive.Tutorial6,
     'Tutorial 2-1': tutorial2x1_simple.Tutorial1,
+    'Tutorial 2-2': tutorial2x2_with_struct.Tutorial2,
+    'Tutorial 2-3': tutorial2x3_with_ref.Tutorial3
 }
 
 

@@ -20,22 +20,32 @@ class Tutorial6(Tutorial):
     @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def make_decision(self, question) -> str:
         """
-        Ask question
+        You must recommend a movie to the user. 
+
+        Decide on how to respond to the user. 
+        Whether to ask a question, respond directly, probe deeper etc.
+
+        You can choose a combination of these. Remember you must keep the conversation
+        going so you can suggest a movie that will be satisfying to the user.
+
         {question}
         """
         pass
 
     @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def recommendation(self, question) -> str:
-        """Answer the user's question about movies. Don't talk about anything else.
+        """You must recommend a movie to the user.
         
-        # List of possible movies
-        {movies}
+        Remember you must keep the conversation
+        going so you can suggest a movie that will be satisfying to the user.
+        
+        # Respond according to this
+        {response}
 
         # User Question
         {question}
         """
-        pass
+        return {'response': self.make_decision(question)}
 
     def render_header(self):
         pass
