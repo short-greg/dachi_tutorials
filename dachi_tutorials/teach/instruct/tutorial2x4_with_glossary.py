@@ -14,8 +14,9 @@ class Role(dachi.Description):
         
         {self.descr}
         """
+    
 
-class Tutorial3(Tutorial):
+class Tutorial4(Tutorial):
     '''Tutorial for adding instructions
     '''
     def __init__(self):
@@ -32,30 +33,63 @@ class Tutorial3(Tutorial):
             going so you can suggest a movie that will be satisfying to the user.
             """
         )
+        self._glossary = dachi.Glossary().add(
+            'Sastified', 'The user is satisfied with the recommendation',
+        ).add(
+            'Dissastified', 'The user is satisfied with the recommendation',
+        ).add(
+            'Neutral: ', 'The user is neither satisfied nor dissatisfied',
+        ).add(
+            'Unknown: ', 'It is not known if the user is satisfied',
+        )
 
     def clear(self):
         self._dialog = dachi.Dialog()
 
     @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
-    def make_decision(self, question) -> str:
+    def evaluate_satisfaction(self, conversation) -> str:
+        """
+        Evaluate whether the user is satisfied with the movie recommendations you've given him 
+
+        # Criteria
+        {criteria}
+    
+        # User conversation
+        {conversation}
+        """
+        return {
+            'criteria': self._glossary.render()
+        }
+
+    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    def make_decision(self, conversation) -> str:
         """
         {instructions}
 
         """
         instruction = dachi.Instruction(
             text="""
-            Decide on how to respond to the user. 
-            Whether to ask a question, respond directly, probe deeper etc.
 
-            Refer to {role}
+            Decide on how to respond to the user based on your role: {role}. 
+            Whether to ask a question, respond directly, probe deeper etc, based on 
+            how satisfied the user is.
 
             You can choose a combination of these. 
+
+            # Satisfaction
+
+            {satisfaction}
         
-            {question}
+            # Conversation: 
+            
+            {conversation}
             """
         )
         ref = dachi.Ref(desc=self._role)
-        instruction = dachi.fill(instruction, question=question, role=ref)
+        satisfaction = self.evaluate_satisfaction(conversation)
+        instruction = dachi.fill(
+            instruction, conversation=conversation, satisfaction=satisfaction, role=ref
+        )
         instruction = dachi.cat(
             [self._role, instruction], '\n\n'
         )
@@ -64,17 +98,20 @@ class Tutorial3(Tutorial):
         }
 
     @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
-    def recommendation(self, question) -> str:
+    def recommendation(self, conversation) -> str:
         """
         {role}
         
         # Respond according to this
         {response}
 
-        # User Question
-        {question}
+        # Current Conversation
+        {conversation}
         """
-        return {'response': self.make_decision(question), 'role': self._role}
+        return {
+            'response': self.make_decision(conversation), 
+            'role': self._role
+        }
 
     def render_header(self):
         pass
