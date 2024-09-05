@@ -15,6 +15,10 @@ from dachi_tutorials.teach.instruct import (
     tutorial2x3_with_ref, tutorial2x4_with_glossary,
     tutorial2x5_instructmethod
 )
+from dachi_tutorials.teach.read import (
+    tutorial3x1_read_primitive, tutorial3x2_read_struct,
+    tutorial3x3_read_csv, tutorial3x4_read_kv
+)
 
 dotenv.load_dotenv()
 st.title('ChatGPT-like Clone')
@@ -32,6 +36,10 @@ tutorial_map = {
     'Tutorial 2-3': tutorial2x3_with_ref.Tutorial3,
     'Tutorial 2-4': tutorial2x4_with_glossary.Tutorial4,
     'Tutorial 2-5': tutorial2x5_instructmethod.Tutorial5,
+    'Tutorial 3-1': tutorial3x1_read_primitive.Tutorial1,
+    'Tutorial 3-2': tutorial3x2_read_struct.Tutorial2,
+    'Tutorial 3-3': tutorial3x3_read_csv.Tutorial3,
+    'Tutorial 3-4': tutorial3x4_read_kv.Tutorial4,
 }
 
 
