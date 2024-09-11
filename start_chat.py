@@ -17,7 +17,15 @@ from dachi_tutorials.teach.instruct import (
 )
 from dachi_tutorials.teach.read import (
     tutorial3x1_read_primitive, tutorial3x2_read_struct,
-    tutorial3x3_read_csv, tutorial3x4_read_kv
+    tutorial3x3_read_csv, tutorial3x4_read_kv, 
+    tutorial3x5_read_multi
+)
+from dachi_tutorials.teach.mapping import (
+    tutorial4x1_async,
+    tutorial4x2_async_multi,
+    tutorial4x3_iterative_reduce,
+    tutorial4x4_map_reduce,
+    tutorial4x5_one_to_many
 )
 
 dotenv.load_dotenv()
@@ -40,6 +48,12 @@ tutorial_map = {
     'Tutorial 3-2': tutorial3x2_read_struct.Tutorial2,
     'Tutorial 3-3': tutorial3x3_read_csv.Tutorial3,
     'Tutorial 3-4': tutorial3x4_read_kv.Tutorial4,
+    'Tutorial 3-5': tutorial3x5_read_multi.Tutorial5,
+    'Tutorial 4-1': tutorial4x1_async.Tutorial1,
+    'Tutorial 4-2': tutorial4x2_async_multi.Tutorial2,
+    'Tutorial 4-3': tutorial4x3_iterative_reduce.Tutorial3,
+    'Tutorial 4-4': tutorial4x4_map_reduce.Tutorial4,
+    'Tutorial 4-5': tutorial4x5_one_to_many.Tutorial5,
 }
 
 
