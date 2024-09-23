@@ -1,10 +1,10 @@
-from ..base import Tutorial
+from ..base import ChatTutorial
 import dachi
 import typing
 from abc import ABC
 
 
-class Tutorial0(Tutorial):
+class Tutorial0(ChatTutorial):
     '''Dummy Tutorial that always outputs the same thing
     '''
 

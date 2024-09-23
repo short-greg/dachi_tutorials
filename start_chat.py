@@ -61,15 +61,17 @@ tutorial_map = {
     'Tutorial 4-3': tutorial4x3_iterative_reduce.Tutorial3,
     'Tutorial 4-4': tutorial4x4_map_reduce.Tutorial4,
     'Tutorial 4-5': tutorial4x5_one_to_many.Tutorial5,
-    'Tutorial 5-1': tutorial5x1_action.Tutorial1,
-    # 'Tutorial 5-2': tutorial5x2_action_streamed.Tutorial2,
 }
+
+
+if 'updated' not in st.session_state:
+    st.session_state.updated = False
+
 
 
 def write_assistant_message(message):
 
-    pass
-
+    st.session_state.updated = True
 
 
 def change_tutorial():
@@ -104,8 +106,6 @@ if prompt := st.chat_input('What is up?'):
 with st.chat_message('assistant'):
     
     if 'user_message' in st.session_state:
-        # import os
-        # os.write(1,b'Something was executed.\n')
 
         stream = st.session_state.tutorial.forward(
             st.session_state.user_message

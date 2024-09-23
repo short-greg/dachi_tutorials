@@ -1,4 +1,4 @@
-from ..base import Tutorial
+from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
@@ -18,7 +18,7 @@ class Role(pydantic.BaseModel):
         {self.description}
         """
 
-class Tutorial2(Tutorial):
+class Tutorial2(ChatTutorial):
     '''Tutorial for reading a struct
     '''
 

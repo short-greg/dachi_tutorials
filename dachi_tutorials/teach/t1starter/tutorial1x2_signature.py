@@ -1,10 +1,10 @@
-from ..base import Tutorial
+from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
 
 
-class Tutorial2(Tutorial):
+class Tutorial2(ChatTutorial):
     '''First Signature tutorial
     '''
 

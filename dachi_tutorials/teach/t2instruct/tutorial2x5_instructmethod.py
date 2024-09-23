@@ -1,4 +1,4 @@
-from ..base import Tutorial
+from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
@@ -16,7 +16,7 @@ class Role(dachi.Description):
         """
     
 
-class Tutorial5(Tutorial):
+class Tutorial5(ChatTutorial):
     '''Tutorial for adding instructions
     '''
     def __init__(self):

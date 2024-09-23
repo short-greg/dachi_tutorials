@@ -1,10 +1,10 @@
-from ..base import Tutorial
+from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
 
 
-class Tutorial7(Tutorial):
+class Tutorial7(ChatTutorial):
     '''Tutorial for making it proactive th
     '''
 

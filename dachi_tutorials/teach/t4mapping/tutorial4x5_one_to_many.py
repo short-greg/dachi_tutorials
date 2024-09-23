@@ -1,11 +1,11 @@
-from ..base import Tutorial
+from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
 
 
 
-class Tutorial5(Tutorial):
+class Tutorial5(ChatTutorial):
     '''Tutorial demonstrating asyncrhonous processing
     '''
 

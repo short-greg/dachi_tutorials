@@ -1,4 +1,4 @@
-from ..base import Tutorial
+from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
@@ -7,7 +7,7 @@ import dachi.adapt.openai
 # TEMPLATE
 # EXAMPLE
 
-class Tutorial4(Tutorial):
+class Tutorial4(ChatTutorial):
     '''Nested Signature tutorial
     '''
 

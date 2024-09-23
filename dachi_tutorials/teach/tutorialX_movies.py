@@ -1,4 +1,4 @@
-from .base import Tutorial
+from .base import ChatTutorial
 import dachi
 import typing
 from abc import ABC
@@ -18,7 +18,7 @@ dataset = 'https://www.kaggle.com/datasets/ashpalsingh1525/imdb-movies-dataset'
 od.download(dataset, './data')
 
 
-class MoviesTutorial(Tutorial):
+class MoviesTutorial(ChatTutorial):
 
     def __init__(self):
 
