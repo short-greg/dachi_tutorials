@@ -4,7 +4,9 @@ import typing
 import dachi.adapt.openai
 
 
-class Role(dachi.Struct):
+import pydantic
+
+class Role(pydantic.BaseModel):
 
     name: str
     description: str
@@ -16,31 +18,31 @@ class Role(dachi.Struct):
         {self.description}
         """
 
-class Tutorial4(Tutorial):
-    '''Tutorial for reading a struct with KV
+class Tutorial2(Tutorial):
+    '''Tutorial for reading a struct
     '''
 
     def __init__(self):
 
-        self.model = 'gpt-4o-mini'
+        self.model = 'gpt-3.5-turbo'
         self._messages = []
 
     def clear(self):
         self._messages = []
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.StructListRead(Role))
-    def decide_role(self, text) -> dachi.StructList[Role]:
+    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
         Decide on the user's role based on the text they provide
 
         # User Text
         {text}
 
-        Output as key values with this format
+        Output with this format
         {template}
         """
 
-        return {'template': dachi.StructListRead(out_cls=Role).template()}
+        return {'template': dachi.StructRead(out_cls=Role).template()}
 
     def render_header(self):
         pass
@@ -50,7 +52,9 @@ class Tutorial4(Tutorial):
         self._messages.append(dachi.TextMessage('user', user_message))
 
         role = self.decide_role(self._messages[-1])
-        response = f'Your role is {role['name']}, {role['description']}'
+        print(role.description)
+        print(role.name)
+        response = f'Your role is {role.name}, {role.description}'
         yield response
         self._messages.append(dachi.TextMessage('assistant', response))
     

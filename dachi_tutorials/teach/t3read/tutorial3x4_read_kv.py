@@ -4,7 +4,9 @@ import typing
 import dachi.adapt.openai
 
 
-class Role(dachi.Struct):
+import pydantic
+
+class Role(pydantic.BaseModel):
 
     name: str
     description: str
@@ -16,8 +18,8 @@ class Role(dachi.Struct):
         {self.description}
         """
 
-class Tutorial3(Tutorial):
-    '''Tutorial for reading a struct
+class Tutorial4(Tutorial):
+    '''Tutorial for reading a struct with KV
     '''
 
     def __init__(self):
@@ -28,19 +30,19 @@ class Tutorial3(Tutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.CSVRead())
+    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.KVRead(key_descr=Role))
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
-        Decide on a list of roles for the users based on the CSV format here
-
-        Output ONLY in CSV supported by Python (with escaped characters). Do NOT add markdown
-        {template}
+        Decide on the user's role based on the text they provide
 
         # User Text
         {text}
+
+        Output as key values with this format
+        {template}
         """
-        # TODO: FINALIZE HOW CSV READ WORKS.. PERHAPS MAKE NMAE OPTIONAL
-        return {'template': dachi.CSVRead(indexed=False, delim=',', cols=Role).template()}
+
+        return {'template': dachi.KVRead(key_descr=Role).template()}
 
     def render_header(self):
         pass
@@ -49,11 +51,9 @@ class Tutorial3(Tutorial):
         
         self._messages.append(dachi.TextMessage('user', user_message))
 
-        roles = self.decide_role(self._messages[-1])
-        response = '\n'.join([f'{role["name"]}: {role["description"]}' for role in roles])
-        #response = str(roles)
+        role = self.decide_role(self._messages[-1])
+        response = f'Your role is {role['name']}, {role['description']}'
         yield response
-        
         self._messages.append(dachi.TextMessage('assistant', response))
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

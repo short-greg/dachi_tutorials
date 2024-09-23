@@ -3,8 +3,11 @@ import dachi
 import typing
 import dachi.adapt.openai
 
+# TODO: FINISH
 
-class Role(dachi.Struct):
+import pydantic
+
+class Role(pydantic.BaseModel):
 
     name: str
     description: str
@@ -28,8 +31,8 @@ class Tutorial4(Tutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.KVRead(key_descr=Role))
-    def decide_role(self, text) -> Role:
+    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.StructListRead(Role))
+    def decide_role(self, text) -> dachi.StructList[Role]:
         """You need to cast members of a play. 
         Decide on the user's role based on the text they provide
 
@@ -40,7 +43,7 @@ class Tutorial4(Tutorial):
         {template}
         """
 
-        return {'template': dachi.KVRead(key_descr=Role).template()}
+        return {'template': dachi.StructListRead(out_cls=Role).template()}
 
     def render_header(self):
         pass

@@ -4,7 +4,9 @@ import typing
 import dachi.adapt.openai
 
 
-class Role(dachi.Struct):
+import pydantic
+
+class Role(pydantic.BaseModel):
 
     name: str
     description: str
@@ -16,7 +18,7 @@ class Role(dachi.Struct):
         {self.description}
         """
 
-class Project(dachi.Struct):
+class Project(pydantic.BaseModel):
 
     name: str
     description: str
