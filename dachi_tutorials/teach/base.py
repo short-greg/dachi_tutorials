@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import streamlit as st
 import threading
 import time
+from streamlit.runtime.scriptrunner import add_script_run_ctx
+
 
 
 class Option(ABC):
@@ -69,7 +71,9 @@ class AgentTutorial(ABC):
             if self._running:
                 return
             self._running = True
-        threading.Thread(target=self._runner, daemon=True).start()
+        t = threading.Thread(target=self._runner, daemon=True)
+        add_script_run_ctx(t)
+        t.start()
 
     def stop(self):
         with self._lock:
@@ -78,6 +82,10 @@ class AgentTutorial(ABC):
     @abstractmethod
     def tick(self) -> typing.Optional[str]:
         pass
+
+    @property
+    def running(self):
+        return self._running
 
     def _runner(self):
         

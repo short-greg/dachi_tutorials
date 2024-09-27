@@ -15,7 +15,7 @@ class DummyAction(dachi.act.Action):
 
     def act(self) -> TaskStatus:
 
-        if random.random() < 0.0002:
+        if random.random() < 0.002:
             self.response = "Dummy message...."
             return dachi.act.TaskStatus.SUCCESS
         return dachi.act.TaskStatus.FAILURE
@@ -29,7 +29,8 @@ class Tutorial0(AgentTutorial):
     '''Tutorial showing how to use the action
     '''
 
-    def __init__(self):
+    def __init__(self, callback, interval: float=1./60):
+        super().__init__(callback, interval)
 
         self.model = 'gpt-4o-mini'
         self._dialog = dachi.Dialog()
@@ -37,20 +38,10 @@ class Tutorial0(AgentTutorial):
 
     def clear(self):
         self._dialog = dachi.Dialog()
-
-    def forward(self, user_message: str) -> typing.Iterator[str]:
-        
-        self._dialog.user(
-            user_message
-        )
-        self._task.question = self._dialog.exclude('system').render()
-        self._task.tick()
-        yield self._task.response
-
-        self._dialog.assistant(self._task.response)
-        self._task.reset()
     
-    def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
+    def messages(
+        self, include: typing.Callable[[str, str], bool]=None
+    ) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
             if include is None or include(message['source'], message['text']):
                 yield message['source'], message['text']
@@ -61,8 +52,11 @@ class Tutorial0(AgentTutorial):
         if status.success:
             self._callback(self._task.response)
             self._dialog.assistant(self._task.response)
+        self._task.reset()
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
             if include is None or include(message['source'], message['text']):
                 yield message['source'], message['text']
+
+
