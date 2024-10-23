@@ -30,7 +30,9 @@ class Tutorial7(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.KVRead(key_descr=Role))
+    @dachi.signaturefunc(
+        dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), 
+        reader=dachi.read.KVRead(key_descr=Role))
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
         Decide on the user's role based on the text they provide
@@ -55,7 +57,9 @@ class Tutorial7(ChatTutorial):
         yield response
         self._messages.append(dachi.TextMessage('assistant', response))
     
-    def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
+    def messages(
+        self, include: typing.Callable[[str, str], bool]=None
+    ) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._messages:
             if include is None or include(message['source'], message['text']):
                 yield message['source'], message['text']

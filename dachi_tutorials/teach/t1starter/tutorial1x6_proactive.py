@@ -17,7 +17,7 @@ class Tutorial6(ChatTutorial):
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def make_decision(self, question) -> str:
         """
         You must recommend a movie to the user. 
@@ -32,7 +32,7 @@ class Tutorial6(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def recommendation(self, question) -> str:
         """You must recommend a movie to the user.
         

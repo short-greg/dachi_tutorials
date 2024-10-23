@@ -17,7 +17,7 @@ class Tutorial2(ChatTutorial):
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.signaturemethod(
+    @dachi.signaturefunc(
         dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def summarize(self, topic) -> str:
         """Summarize the topic that the user presents in his messages
@@ -27,7 +27,7 @@ class Tutorial2(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod(
+    @dachi.signaturefunc(
         dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def list_main_points(self, topic) -> str:
         """List the main points of the topic that the user is requesting in his messages

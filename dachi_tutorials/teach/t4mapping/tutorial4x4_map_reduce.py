@@ -18,7 +18,7 @@ class Tutorial4(ChatTutorial):
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.signaturemethod('_model')
+    @dachi.signaturefunc('_model')
     def summarize(self, topic) -> str:
         """Summarize the topic that is shared.
 
@@ -27,7 +27,7 @@ class Tutorial4(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod('_model')
+    @dachi.signaturefunc('_model')
     def summarize_summaries(self, cur_summary) -> str:
         """Summarize all of the summaries taht have been shared
 

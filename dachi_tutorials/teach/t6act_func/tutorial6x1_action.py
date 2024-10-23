@@ -12,7 +12,7 @@ class Tutorial1(AgentTutorial):
     '''Tutorial showing how to use the action
     '''
 
-    @dachi.signaturemethod(engine=model)
+    @dachi.signaturefunc(engine=model)
     def propose_synopsis(self) -> str:
         """
         Role: Creative Screenwriter

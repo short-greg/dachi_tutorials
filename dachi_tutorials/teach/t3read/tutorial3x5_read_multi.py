@@ -43,12 +43,12 @@ class Tutorial5(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.signaturemethod(
+    @dachi.signaturefunc(
         # 'model', 
         # [dachi.KVRead(Project), dachi.KVRead(Role)]
         dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), 
         reader=dachi.MultiRead(outs=[
-            dachi.KVRead(key_descr=Project), dachi.KVRead(key_descr=Role)]
+            dachi.read.KVRead(key_descr=Project), dachi.read.KVRead(key_descr=Role)]
         )
     )
     # key_descr=Role
@@ -63,7 +63,7 @@ class Tutorial5(ChatTutorial):
         """
         # READER.template()
         template = dachi.MultiRead(outs=[
-            dachi.KVRead(key_descr=Project), dachi.KVRead(key_descr=Role)]
+            dachi.read.KVRead(key_descr=Project), dachi.read.KVRead(key_descr=Role)]
         ).template()
         return {'template': template}
 

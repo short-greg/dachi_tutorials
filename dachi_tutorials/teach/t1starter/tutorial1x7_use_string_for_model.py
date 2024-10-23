@@ -17,7 +17,7 @@ class Tutorial7(ChatTutorial):
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.signaturemethod('_model')
+    @dachi.signaturefunc('_model')
     def make_decision(self, question) -> str:
         """
         You must recommend a movie to the user. 
@@ -32,7 +32,7 @@ class Tutorial7(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod('_model')
+    @dachi.signaturefunc('_model')
     def recommendation(self, question) -> str:
         """You must recommend a movie to the user.
         

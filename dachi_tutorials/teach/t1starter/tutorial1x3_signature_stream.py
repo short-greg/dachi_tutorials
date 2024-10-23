@@ -13,7 +13,7 @@ class Tutorial3(ChatTutorial):
         self.model = 'gpt-4o-mini'
         self._messages = []
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def answer_question(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else 
         

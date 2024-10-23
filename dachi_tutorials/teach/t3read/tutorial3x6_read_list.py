@@ -31,7 +31,7 @@ class Tutorial4(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.StructListRead(Role))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.read.StructListRead(Role))
     def decide_role(self, text) -> dachi.StructList[Role]:
         """You need to cast members of a play. 
         Decide on the user's role based on the text they provide
@@ -43,7 +43,7 @@ class Tutorial4(ChatTutorial):
         {template}
         """
 
-        return {'template': dachi.StructListRead(out_cls=Role).template()}
+        return {'template': dachi.read.StructListRead(out_cls=Role).template()}
 
     def render_header(self):
         pass

@@ -17,13 +17,13 @@ class Tutorial5(ChatTutorial):
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def pick_movies(self, question) -> str:
         """List up several movies related to the user's question {question}
         """
         pass
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def recommendation(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else.
         

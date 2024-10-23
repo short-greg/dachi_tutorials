@@ -15,7 +15,7 @@ class Tutorial2(AgentTutorial):
     '''Tutorial showing how to use the action
     '''
 
-    @dachi.signaturemethod(engine=model)
+    @dachi.signaturefunc(engine=model)
     def propose_synopsis(self) -> str:
         """
 
@@ -26,7 +26,7 @@ class Tutorial2(AgentTutorial):
         """
         pass
 
-    @dachi.signaturemethod(engine=model)
+    @dachi.signaturefunc(engine=model)
     def self_critique(self, synopsis) -> str:
         """Role: Strict Screenwriter
         You must evaluate your screenplay synopsis strictly and whether
@@ -44,7 +44,7 @@ class Tutorial2(AgentTutorial):
         """
         pass
 
-    @dachi.signaturemethod(engine=model)
+    @dachi.signaturefunc(engine=model)
     def approve_helper(self, critique: dachi.Shared) -> str:
         """Role: Strict Screenwriter
         Decide whether to reject or accept your synopsis based.

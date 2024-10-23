@@ -14,7 +14,7 @@ model = dachi.adapt.openai.OpenAIChatModel(
 class Tutorial4(AgentTutorial):
     '''Tutorial showing how to use the action
     '''
-    @dachi.signaturemethod(engine=model)
+    @dachi.signaturefunc(engine=model)
     def propose_synopsis(self) -> str:
         """
 
@@ -25,7 +25,7 @@ class Tutorial4(AgentTutorial):
         """
         pass
 
-    @dachi.signaturemethod(engine=model)
+    @dachi.signaturefunc(engine=model)
     def approve_helper(self, synopsis: dachi.Shared) -> str:
         """
         Role: Screenwriter critiquing his screenplay

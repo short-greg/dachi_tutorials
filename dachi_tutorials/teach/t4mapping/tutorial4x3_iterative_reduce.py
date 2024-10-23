@@ -18,11 +18,12 @@ class Tutorial3(ChatTutorial):
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.signaturemethod(
+    @dachi.signaturefunc(
         dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def summarize(self, cur_summary, topic) -> str:
         """Summarize the topic that is shared. You will be sent the topic sentence by sentence
-        so refine the summary based on the current topic
+        so refine the summary based on the current topic. If there is no current
+        summary then output a summary based on the current topic.
 
         # Current summary
         {cur}
@@ -30,10 +31,11 @@ class Tutorial3(ChatTutorial):
         # Current Topic
         {topic}
         """
+        print(cur_summary, topic)
         if cur_summary is not None:
             return {'cur': cur_summary}
         else:
-            return {'cur': 'No summary yet.'}
+            return {'cur': '---.'}
 
     def render_header(self):
         pass

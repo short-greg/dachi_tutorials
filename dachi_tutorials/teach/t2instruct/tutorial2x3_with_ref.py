@@ -4,7 +4,7 @@ import typing
 import dachi.adapt.openai
 
 
-class Role(dachi.Description):
+class Role(dachi.op.Description):
 
     descr: str
 
@@ -36,7 +36,7 @@ class Tutorial3(ChatTutorial):
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def make_decision(self, question) -> str:
         """
         {instructions}
@@ -54,16 +54,16 @@ class Tutorial3(ChatTutorial):
             {question}
             """
         )
-        ref = dachi.Ref(desc=self._role)
-        instruction = dachi.fill(instruction, question=question, role=ref)
-        instruction = dachi.cat(
+        ref = dachi.op.Ref(desc=self._role)
+        instruction = dachi.op.fill(instruction, question=question, role=ref)
+        instruction = dachi.op.cat(
             [self._role, instruction], '\n\n'
         )
         return {
             'instructions': instruction
         }
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def recommendation(self, question) -> str:
         """
         {role}

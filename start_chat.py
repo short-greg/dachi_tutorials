@@ -6,18 +6,25 @@ import os
 
 from dachi_tutorials.teach.t1starter import (
     tutorial1x0_dummy, tutorial1x1_chat,
-    tutorial1x2_signature, tutorial1x3_signature_stream,
-    tutorial1x4_signature2, tutorial1x5_with_history,
+    tutorial1x2_signature, 
+    tutorial1x3_signature_stream,
+    tutorial1x4_signature2, 
+    tutorial1x5_with_history,
     tutorial1x6_proactive, tutorial1x7_use_string_for_model
 )
 from dachi_tutorials.teach.t2instruct import (
-    tutorial2x1_simple, tutorial2x2_with_struct,
-    tutorial2x3_with_ref, tutorial2x4_with_glossary,
-    tutorial2x5_instructmethod, tutorial2x6_styling
+    tutorial2x1_simple, 
+    tutorial2x2_with_struct,
+    tutorial2x3_with_ref, 
+    tutorial2x4_with_glossary,
+    tutorial2x5_instructmethod, 
+    tutorial2x6_styling
 )
 from dachi_tutorials.teach.t3read import (
-    tutorial3x1_read_primitive, tutorial3x2_read_struct,
-    tutorial3x3_read_csv, tutorial3x4_read_kv, 
+    tutorial3x1_read_primitive, 
+    tutorial3x2_read_struct,
+    tutorial3x3_read_csv, 
+    tutorial3x4_read_kv, 
     tutorial3x5_read_multi,
     tutorial3x7_template
 )
@@ -28,8 +35,11 @@ from dachi_tutorials.teach.t4mapping import (
     tutorial4x4_map_reduce,
     tutorial4x5_one_to_many
 )
-from dachi_tutorials.teach.t5act import (
-    tutorial5x1_action,
+from dachi_tutorials.teach.t7_storywriter import (
+    tutorial7x1_write_story,
+)
+from dachi_tutorials.teach.t8_flight_reserver import (
+    tutorial8x1_flight_reserver1,
 )
 
 dotenv.load_dotenv()
@@ -61,6 +71,8 @@ tutorial_map = {
     'Tutorial 4-3': tutorial4x3_iterative_reduce.Tutorial3,
     'Tutorial 4-4': tutorial4x4_map_reduce.Tutorial4,
     'Tutorial 4-5': tutorial4x5_one_to_many.Tutorial5,
+    'Tutorial 7-1': tutorial7x1_write_story.Tutorial1,
+    'Tutorial 8-1': tutorial8x1_flight_reserver1.Tutorial1,
 }
 
 

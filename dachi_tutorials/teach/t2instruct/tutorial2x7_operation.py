@@ -4,7 +4,8 @@ import typing
 import dachi.adapt.openai
 import pydantic
 
-class Role(pydantic.BaseModel):
+
+class Role(dachi.op.Description):
 
     name: str
     descr: str
@@ -38,7 +39,7 @@ class Tutorial6(ChatTutorial):
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.instructmethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.instructfunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def recommendation(self, question) -> str:
         """
         """
@@ -47,21 +48,21 @@ class Tutorial6(ChatTutorial):
             'message according to the response format.'
         )
         role = dachi.Instruction(text='Role: Recommender')
-        header = dachi.section(
+        header = dachi.op.section(
             role, details, linebreak=1
         )
 
-        response_format = dachi.section(
+        response_format = dachi.op.section(
             'Response Format', 
             '<Make recommendation or state current understanding>\n'
             '<Ask follow-up question>'
         )
-        user_question = dachi.section(
+        user_question = dachi.op.section(
             "Here is the user's question", 
             f'{question}'
         )
 
-        return dachi.cat([header, response_format, user_question])
+        return dachi.op.cat([header, response_format, user_question])
 
     def render_header(self):
         pass

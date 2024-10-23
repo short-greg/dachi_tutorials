@@ -29,7 +29,7 @@ class Tutorial3(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.CSVRead())
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.read.CSVRead())
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
         Decide on a list of roles for the users based on the CSV format here
@@ -41,7 +41,7 @@ class Tutorial3(ChatTutorial):
         {text}
         """
         # TODO: FINALIZE HOW CSV READ WORKS.. PERHAPS MAKE NMAE OPTIONAL
-        return {'template': dachi.CSVRead(indexed=False, delim=',', cols=Role).template()}
+        return {'template': dachi.read.CSVRead(indexed=False, delim=',', cols=Role).template()}
 
     def render_header(self):
         pass

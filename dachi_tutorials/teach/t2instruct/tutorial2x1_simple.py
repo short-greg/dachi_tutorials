@@ -24,7 +24,7 @@ class Tutorial1(ChatTutorial):
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def make_decision(self, question) -> str:
         """
         {instructions}
@@ -40,15 +40,15 @@ class Tutorial1(ChatTutorial):
             {question}
             """
         )
-        instruction = dachi.fill(instruction, question=question)
-        instruction = dachi.cat(
+        instruction = dachi.op.fill(instruction, question=question)
+        instruction = dachi.op.cat(
             [self._role, instruction], '\n\n'
         )
         return {
             'instructions': instruction
         }
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def recommendation(self, question) -> str:
         """
         {role}

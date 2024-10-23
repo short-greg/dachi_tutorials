@@ -4,7 +4,7 @@ import typing
 import dachi.adapt.openai
 
 
-class Role(dachi.Description):
+class Role(dachi.op.Description):
 
     descr: str
 
@@ -33,7 +33,7 @@ class Tutorial5(ChatTutorial):
             going so you can suggest a movie that will be satisfying to the user.
             """
         )
-        self._glossary = dachi.Glossary().add(
+        self._glossary = dachi.data.Glossary().add(
             'Sastified', 'The user is satisfied with the recommendation',
         ).add(
             'Dissastified', 'The user is satisfied with the recommendation',
@@ -46,7 +46,7 @@ class Tutorial5(ChatTutorial):
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def evaluate_satisfaction(self, conversation) -> str:
         """
         Evaluate whether the user is satisfied with the movie recommendations you've given him 
@@ -61,8 +61,8 @@ class Tutorial5(ChatTutorial):
             'criteria': self._glossary.render()
         }
 
-    # Change this to be an "instructmethod"
-    @dachi.instructmethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    # Change this to be an "instructfunc"
+    @dachi.instructfunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def make_decision(self, conversation) -> str:
         instruction = dachi.Instruction(
             text="""
@@ -82,17 +82,17 @@ class Tutorial5(ChatTutorial):
             {conversation}
             """
         )
-        ref = dachi.Ref(desc=self._role)
+        ref = dachi.op.Ref(desc=self._role)
         satisfaction = self.evaluate_satisfaction(conversation)
-        instruction = dachi.fill(
+        instruction = dachi.op.fill(
             instruction, conversation=conversation, satisfaction=satisfaction, role=ref
         )
-        instruction = dachi.cat(
+        instruction = dachi.op.cat(
             [self._role, instruction], '\n\n'
         )
         return instruction
 
-    @dachi.signaturemethod(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def recommendation(self, conversation) -> str:
         """
         {role}
