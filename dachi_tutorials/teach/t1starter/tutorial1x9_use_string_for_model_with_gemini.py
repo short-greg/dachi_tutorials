@@ -1,22 +1,19 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.adapt.gemini
 
 
-class Tutorial7(ChatTutorial):
-    '''Tutorial for making it proactive th
-    '''
+class Tutorial9(ChatTutorial):
 
     @property
     def description(self) -> str:
-        return '''Tutorial for making the chatbot proactive using a string for the model in signature'''
+        return '''Tutorial for using Gemini'''
 
     def __init__(self):
 
-        self.model = 'gpt-4o-mini'
         self._dialog = dachi.Dialog()
-        self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
+        self._model = dachi.adapt.gemini.GeminiChatModel()
 
     def clear(self):
         self._dialog = dachi.Dialog()
@@ -65,7 +62,7 @@ class Tutorial7(ChatTutorial):
         ):
             yield p2
             res += p2
-      
+    
         self._dialog.assistant(p1)
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

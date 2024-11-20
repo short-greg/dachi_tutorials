@@ -68,8 +68,11 @@ class Approval(LLMAction):
 
 
 class Tutorial4(AgentTutorial):
-    '''Tutorial showing how to use the action
-    '''
+
+    @property
+    def description(self) -> str:
+        return  '''Tutorial showing how to repeat an action'''
+
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
         self.synopsis = dachi.Shared()

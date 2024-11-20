@@ -5,8 +5,10 @@ import dachi.adapt.openai
 
 
 class Tutorial2(ChatTutorial):
-    '''Tutorial demonstrating asyncrhonous processing
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''Tutorial demonstrating asyncrhonous processing'''
 
     def __init__(self):
 

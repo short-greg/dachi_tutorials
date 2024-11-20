@@ -5,14 +5,17 @@ import dachi.adapt.openai
 
 
 class Tutorial1(ChatTutorial):
-    '''Tutorial for adding instructions
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''Tutorial for adding instructions'''
+    
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
         self._dialog = dachi.Dialog()
         self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
-        self._role = dachi.Instruction(
+        self._role = dachi.Cue(
             text=
             """
             You must recommend a movie to the user. 
@@ -30,7 +33,7 @@ class Tutorial1(ChatTutorial):
         {instructions}
 
         """
-        instruction = dachi.Instruction(
+        instruction = dachi.Cue(
             text="""
             Decide on how to respond to the user. 
             Whether to ask a question, respond directly, probe deeper etc.
@@ -94,10 +97,10 @@ class Tutorial1(ChatTutorial):
 #         self._dialog = dachi.Dialog()
 #         self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
 
-#         self._instruction = dachi.Instruction(
+#         self._instruction = dachi.Cue(
 #             "Answer the user's question about movies. Don't talk about anything else."
 #         )
-#         self._data = dachi.Instruction(
+#         self._data = dachi.Cue(
 #             """
 #             # User Question
 #             {question}

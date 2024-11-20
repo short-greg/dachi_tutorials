@@ -10,7 +10,10 @@ from dachi_tutorials.teach.t1starter import (
     tutorial1x3_signature_stream,
     tutorial1x4_signature2, 
     tutorial1x5_with_history,
-    tutorial1x6_proactive, tutorial1x7_use_string_for_model
+    tutorial1x6_proactive, tutorial1x7_use_string_for_model,
+    tutorial1x8_use_string_for_model_with_claude,
+    tutorial1x9_use_string_for_model_with_gemini,
+    tutorial1x10_use_string_for_model_with_assistants,
 )
 from dachi_tutorials.teach.t2instruct import (
     tutorial2x1_simple, 
@@ -54,6 +57,9 @@ tutorial_map = {
     'Tutorial 1-5': tutorial1x5_with_history.Tutorial5,
     'Tutorial 1-6': tutorial1x6_proactive.Tutorial6,
     'Tutorial 1-7': tutorial1x7_use_string_for_model.Tutorial7,
+    'Tutorial 1-8': tutorial1x8_use_string_for_model_with_claude.Tutorial8,
+    'Tutorial 1-9': tutorial1x9_use_string_for_model_with_gemini.Tutorial9,
+    'Tutorial 1-10': tutorial1x10_use_string_for_model_with_assistants.Tutorial10,
     'Tutorial 2-1': tutorial2x1_simple.Tutorial1,
     'Tutorial 2-2': tutorial2x2_with_struct.Tutorial2,
     'Tutorial 2-3': tutorial2x3_with_ref.Tutorial3,
@@ -73,12 +79,12 @@ tutorial_map = {
     'Tutorial 4-5': tutorial4x5_one_to_many.Tutorial5,
     'Tutorial 7-1': tutorial7x1_write_story.Tutorial1,
     'Tutorial 8-1': tutorial8x1_flight_reserver1.Tutorial1,
+    
 }
 
 
 if 'updated' not in st.session_state:
     st.session_state.updated = False
-
 
 
 def write_assistant_message(message):
@@ -90,6 +96,7 @@ def change_tutorial():
     if option != st.session_state.current_tutorial:
         st.session_state.tutorial.clear()
         st.session_state.tutorial = tutorial_map[st.session_state.current_tutorial]()
+        st.session_state.user_message = None
     print(f'Updated tutorial to {st.session_state.current_tutorial}')
 
 
@@ -103,6 +110,7 @@ if 'tutorial' not in st.session_state:
 
     st.session_state.tutorial = tutorial1x0_dummy.Tutorial0()
 
+st.text(st.session_state.tutorial.description)
 
 for role, text in st.session_state.tutorial.messages(lambda role, m: role != 'system'):
     with st.chat_message(role):
@@ -115,9 +123,8 @@ if prompt := st.chat_input('What is up?'):
         st.markdown(prompt)
 
 
-with st.chat_message('assistant'):
-    
-    if 'user_message' in st.session_state:
+if 'user_message' in st.session_state and st.session_state.user_message is not None:
+    with st.chat_message('assistant'):
 
         stream = st.session_state.tutorial.forward(
             st.session_state.user_message

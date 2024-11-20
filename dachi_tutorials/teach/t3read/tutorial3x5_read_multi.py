@@ -32,8 +32,10 @@ class Project(pydantic.BaseModel):
 
 
 class Tutorial5(ChatTutorial):
-    '''Tutorial for reading a struct with KV
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''Tutorial for reading multiple values.'''
 
     def __init__(self):
 

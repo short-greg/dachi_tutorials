@@ -5,8 +5,10 @@ import dachi.adapt.openai
 
 
 class Tutorial1(ChatTutorial):
-    '''Tutorial for reading a primitive
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''Tutorial for reading a primitive'''
 
     def __init__(self):
 

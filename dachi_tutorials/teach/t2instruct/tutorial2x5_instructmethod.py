@@ -17,8 +17,11 @@ class Role(dachi.op.Description):
     
 
 class Tutorial5(ChatTutorial):
-    '''Tutorial for adding instructions
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''Tutorial for adding instructions with an instructmethod'''
+
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
@@ -64,7 +67,7 @@ class Tutorial5(ChatTutorial):
     # Change this to be an "instructfunc"
     @dachi.instructfunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
     def make_decision(self, conversation) -> str:
-        instruction = dachi.Instruction(
+        instruction = dachi.Cue(
             text="""
 
             Decide on how to respond to the user based on your role: {role}. 

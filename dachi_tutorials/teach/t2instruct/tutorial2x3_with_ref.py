@@ -16,8 +16,11 @@ class Role(dachi.op.Description):
         """
 
 class Tutorial3(ChatTutorial):
-    '''Tutorial for adding instructions
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''Tutorial for adding instructions with a reference.'''
+
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
@@ -42,7 +45,7 @@ class Tutorial3(ChatTutorial):
         {instructions}
 
         """
-        instruction = dachi.Instruction(
+        instruction = dachi.Cue(
             text="""
             Decide on how to respond to the user. 
             Whether to ask a question, respond directly, probe deeper etc.

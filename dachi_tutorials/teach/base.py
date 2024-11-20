@@ -44,6 +44,10 @@ class Dropdown(Option):
 
 
 class ChatTutorial(ABC):
+
+    @property
+    def description(self) -> str:
+        return ''
     
     @abstractmethod
     def forward(self, user_message: str) -> typing.Iterator[str]:
@@ -65,6 +69,10 @@ class AgentTutorial(ABC):
         self._running = False
         self._interval = interval
         self._lock = threading.Lock()
+
+    @property
+    def description(self) -> str:
+        return ''
 
     def start(self):
         with self._lock:

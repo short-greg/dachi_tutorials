@@ -5,8 +5,10 @@ import dachi.adapt.openai
 
 
 class Tutorial5(ChatTutorial):
-    '''Tutorial for using history
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''Signature tutorial using history. First it picks movies then recommends'''
 
     def __init__(self):
 

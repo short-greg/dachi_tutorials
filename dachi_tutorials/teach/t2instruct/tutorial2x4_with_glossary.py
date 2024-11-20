@@ -14,11 +14,13 @@ class Role(dachi.op.Description):
         
         {self.descr}
         """
-    
 
 class Tutorial4(ChatTutorial):
-    '''Tutorial for adding instructions
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''Tutorial for adding instructions with a glossary'''
+
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
@@ -33,7 +35,7 @@ class Tutorial4(ChatTutorial):
             going so you can suggest a movie that will be satisfying to the user.
             """
         )
-        self._glossary = dachi.Glossary().add(
+        self._glossary = dachi.data.Glossary().add(
             'Sastified', 'The user is satisfied with the recommendation',
         ).add(
             'Dissastified', 'The user is satisfied with the recommendation',
@@ -67,7 +69,7 @@ class Tutorial4(ChatTutorial):
         {instructions}
 
         """
-        instruction = dachi.Instruction(
+        instruction = dachi.Cue(
             text="""
 
             Decide on how to respond to the user based on your role: {role}. 

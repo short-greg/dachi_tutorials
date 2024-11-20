@@ -11,6 +11,10 @@ class Tutorial4(ChatTutorial):
     '''Nested Signature tutorial
     '''
 
+    @property
+    def description(self) -> str:
+        return '''Signature tutorial using nesting. First it picks movies then recommends'''
+
     def __init__(self):
 
         self.model = 'gpt-3.5-turbo'

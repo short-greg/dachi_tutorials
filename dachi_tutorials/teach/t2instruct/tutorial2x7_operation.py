@@ -19,8 +19,11 @@ class Role(dachi.op.Description):
 
 
 class Tutorial6(ChatTutorial):
-    '''Tutorial for adding instructions
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''Tutorial for adding instructions with an operation'''
+
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
@@ -43,11 +46,11 @@ class Tutorial6(ChatTutorial):
     def recommendation(self, question) -> str:
         """
         """
-        details = dachi.Instruction(
+        details = dachi.Cue(
             text='Recommend a movie based on the users' 
             'message according to the response format.'
         )
-        role = dachi.Instruction(text='Role: Recommender')
+        role = dachi.Cue(text='Role: Recommender')
         header = dachi.op.section(
             role, details, linebreak=1
         )

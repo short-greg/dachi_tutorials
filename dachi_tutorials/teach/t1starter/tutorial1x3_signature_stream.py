@@ -5,8 +5,10 @@ import dachi.adapt.openai
 
 
 class Tutorial3(ChatTutorial):
-    """Streaming signature tutorial
-    """
+
+    @property
+    def description(self) -> str:
+        return """Streaming signature tutorial using streaming"""
 
     def __init__(self):
 

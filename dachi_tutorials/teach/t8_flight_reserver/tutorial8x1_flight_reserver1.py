@@ -2,8 +2,7 @@ from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
-
-
+from pydantic import BaseModel
 import pydantic
 
 
@@ -18,9 +17,6 @@ class ThemeCheck(pydantic.BaseModel):
         
         {self.message}
         """
-
-from pydantic import BaseModel
-import pydantic
 
 
 class UserPref(BaseModel):
@@ -52,6 +48,10 @@ class Tutorial1(ChatTutorial):
         self.context = dachi.data.ContextStorage()
         self.dialog = dachi.Dialog(messages=[])
         self.pref = dachi.data.Shared(UserPref())
+
+    @property
+    def description(self) -> str:
+        return '''Tutorial for reserving a flight, demonstrating using agents'''
 
     def clear(self):
         self.dialog = dachi.Dialog(messages=[])
@@ -186,15 +186,16 @@ class Tutorial1(ChatTutorial):
         status = dachi.act.TaskStatus.READY
 
         text = ''
+
         while not status.is_done:
             status = dachi.act.sequence([
+                self.update_pref.task(),
                 dachi.act.selector([
                     self.select_destination.task(),
                     self.choose_package.task(),
                     self.set_time.task(),
                     self.end_discussion.task()
-                ], self.context.select),
-                self.update_pref.task()
+                ], self.context.select)
             ], self.context.seq)()
             cur_text = ''.join(self.buffer_iter.read_map(lambda x: x.val))
 

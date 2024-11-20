@@ -38,6 +38,10 @@ class ProposeSynopsis(LLMAction):
 
 class Approval(LLMAction):
 
+    @property
+    def description(self) -> str:
+        return '''Tutorial showing how to use a fallback with an action'''
+
     def __init__(self, synopsis: dachi.Shared, approval: dachi.Shared):
         super().__init__(approval)
         self.synopsis = synopsis

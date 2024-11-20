@@ -5,8 +5,10 @@ import dachi.adapt.openai
 
 
 class Tutorial2(ChatTutorial):
-    '''First Signature tutorial
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''First Signature tutorial with no memory'''
 
     def __init__(self):
 

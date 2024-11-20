@@ -1,22 +1,19 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.adapt.anthropic
 
 
-class Tutorial7(ChatTutorial):
-    '''Tutorial for making it proactive th
-    '''
+class Tutorial8(ChatTutorial):
 
     @property
     def description(self) -> str:
-        return '''Tutorial for making the chatbot proactive using a string for the model in signature'''
+        return '''Tutorial for making the chatbot proactive using a string for the model in signature with Claude'''
 
     def __init__(self):
 
-        self.model = 'gpt-4o-mini'
         self._dialog = dachi.Dialog()
-        self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
+        self._model = dachi.adapt.anthropic.AnthropicModel()
 
     def clear(self):
         self._dialog = dachi.Dialog()
@@ -56,6 +53,9 @@ class Tutorial7(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
+        # self._dialog.add(
+        #     dachi.TextMessage('system', self.recommendation.i(user_message))
+        # )
         self._dialog.user(
             user_message
         )
@@ -66,6 +66,7 @@ class Tutorial7(ChatTutorial):
             yield p2
             res += p2
       
+        # yield cur_message
         self._dialog.assistant(p1)
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

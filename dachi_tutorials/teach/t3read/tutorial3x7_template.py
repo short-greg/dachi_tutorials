@@ -19,8 +19,10 @@ class Role(pydantic.BaseModel):
         """
 
 class Tutorial7(ChatTutorial):
-    '''Tutorial for reading a struct with KV
-    '''
+
+    @property
+    def description(self) -> str:
+        return '''Tutorial for using a template in reading'''
 
     def __init__(self):
 
