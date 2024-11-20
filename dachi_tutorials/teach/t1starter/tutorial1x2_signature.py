@@ -5,10 +5,9 @@ import dachi.adapt.openai
 
 
 class Tutorial2(ChatTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''First Signature tutorial with no memory'''
+    """This tutorial uses a signature method in order to generate movie recommendations.
+    It has no history.
+    """
 
     def __init__(self):
 

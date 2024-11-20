@@ -20,10 +20,7 @@ class Role(pydantic.BaseModel):
         """
 
 class Tutorial4(ChatTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial for reading a list object'''
+    '''Tutorial for reading a list object. Will cast the roles in a play.'''
 
     def __init__(self):
 
@@ -36,7 +33,7 @@ class Tutorial4(ChatTutorial):
     @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.read.StructListRead(Role))
     def decide_role(self, text) -> dachi.StructList[Role]:
         """You need to cast members of a play. 
-        Decide on the user's role based on the text they provide
+        Decide on the roles for the cast based on the text they provide
 
         # User Text
         {text}

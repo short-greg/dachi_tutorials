@@ -5,10 +5,7 @@ import dachi.adapt.openai
 
 
 class Tutorial3(ChatTutorial):
-
-    @property
-    def description(self) -> str:
-        return """Streaming signature tutorial using streaming"""
+    """Streaming signature tutorial uses streaming to generate movie recommendations. Has no history."""
 
     def __init__(self):
 

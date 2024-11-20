@@ -6,10 +6,8 @@ import asyncio
 
 
 class Tutorial1(ChatTutorial):
-    
-    @property
-    def description(self) -> str:
-        return '''Tutorial demonstrating asyncrhonous processing'''
+    '''Tutorial demonstrating asyncrhonous processing. 
+    The topic of your message will be summarized and main points listed.'''
 
     def __init__(self):
 
@@ -25,6 +23,8 @@ class Tutorial1(ChatTutorial):
     def summarize(self, topic) -> str:
         """Summarize the topic that the user presents in his messages
 
+        If the topic is not clear, then explain so.
+        
         # User Question
         {topic}
         """
@@ -35,6 +35,8 @@ class Tutorial1(ChatTutorial):
     def list_main_points(self, topic) -> str:
         """List the main points of the topic that the user is requesting in his messages
 
+        If the topic is not clear, then explain so.
+        
         # User Question
         {topic}
         """
@@ -66,7 +68,6 @@ class Tutorial1(ChatTutorial):
         message = '\n\n'.join(results)
         yield message
         
-        # yield cur_message
         self._dialog.assistant(message)
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

@@ -6,6 +6,8 @@ import dachi.adapt.openai
 
 
 class Tutorial4(ChatTutorial):
+    '''Tutorial demonstrating asyncrhonous processing using async_map. 
+    The topic will be split up into chunks then the summaries will be summarized.'''
 
     @property
     def description(self) -> str:

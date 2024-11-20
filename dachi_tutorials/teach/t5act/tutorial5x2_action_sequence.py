@@ -102,10 +102,7 @@ class Approval(LLMAction):
         
 
 class Tutorial2(AgentTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial showing how to use a sequence with an action'''
+    '''A script creator demonstrating how to use an sequence with an action in a behavior tree.'''
 
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)

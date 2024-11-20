@@ -3,10 +3,7 @@ import typing
 
 
 class Tutorial0(ChatTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''Dummy Tutorial that always outputs the same thing'''
+    '''Dummy Tutorial that always outputs the same thing'''
     
     def __init__(self) -> None:
         super().__init__()

@@ -12,10 +12,8 @@ model = dachi.adapt.openai.OpenAIChatModel(
 
 
 class Tutorial3(AgentTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial showing how to use a fallback with functions'''
+    '''A script creator demonstrating how to use a fallback
+    with functions in a behavior tree.'''
 
     @dachi.signaturefunc(engine=model)
     def propose_synopsis(self) -> str:

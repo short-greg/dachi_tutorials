@@ -19,10 +19,11 @@ class Role(pydantic.BaseModel):
         """
 
 class Tutorial2(ChatTutorial):
+    '''Tutorial for reading a struct. Will choose your role in a play based on the information you provide'''
 
     @property
     def description(self) -> str:
-        return '''Tutorial for reading a struct'''
+        return 
 
     def __init__(self):
 
@@ -54,8 +55,6 @@ class Tutorial2(ChatTutorial):
         self._messages.append(dachi.TextMessage('user', user_message))
 
         role = self.decide_role(self._messages[-1])
-        print(role.description)
-        print(role.name)
         response = f'Your role is {role.name}, {role.description}'
         yield response
         self._messages.append(dachi.TextMessage('assistant', response))

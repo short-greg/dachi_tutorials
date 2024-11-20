@@ -5,10 +5,7 @@ import dachi.adapt.anthropic
 
 
 class Tutorial8(ChatTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial for making the chatbot proactive using a string for the model in signature with Claude'''
+    '''Tutorial for making the chatbot proactive using a string for the model in signature with Claude'''
 
     def __init__(self):
 

@@ -32,10 +32,7 @@ class Project(pydantic.BaseModel):
 
 
 class Tutorial5(ChatTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial for reading multiple values.'''
+    '''Tutorial for reading multiple sets of Key Values (KV). Will first decide on the project and then cast'''
 
     def __init__(self):
 

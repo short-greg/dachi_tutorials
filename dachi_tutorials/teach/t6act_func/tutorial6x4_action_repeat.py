@@ -12,10 +12,8 @@ model = dachi.adapt.openai.OpenAIChatModel(
 
 
 class Tutorial4(AgentTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial showing how to use a repeat action'''
+    '''A script creator demonstrating how to use repeat
+    with functions in a behavior tree.'''
 
     @dachi.signaturefunc(engine=model)
     def propose_synopsis(self) -> str:

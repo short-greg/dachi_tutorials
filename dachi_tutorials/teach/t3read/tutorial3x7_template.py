@@ -19,6 +19,7 @@ class Role(pydantic.BaseModel):
         """
 
 class Tutorial7(ChatTutorial):
+    '''Tutorial for reading a list object. Will cast the roles in a play.'''
 
     @property
     def description(self) -> str:

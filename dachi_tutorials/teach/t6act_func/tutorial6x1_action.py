@@ -9,10 +9,7 @@ model = dachi.adapt.openai.OpenAIChatModel(
 )
 
 class Tutorial1(AgentTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial showing how to use an action with functions'''
+    '''A script creator demonstrating how to use an action in a behavior tree.'''
 
     @dachi.signaturefunc(engine=model)
     def propose_synopsis(self) -> str:
@@ -42,8 +39,6 @@ class Tutorial1(AgentTutorial):
         if status.success:
             self._callback(self._response.get())
             self._dialog.assistant(self._response.get())
-        # if status.is_done:
-        #    self._task.reset()
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:

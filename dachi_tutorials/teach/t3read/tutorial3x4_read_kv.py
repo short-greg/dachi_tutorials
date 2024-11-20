@@ -19,10 +19,7 @@ class Role(pydantic.BaseModel):
         """
 
 class Tutorial4(ChatTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial for reading a key value structure'''
+    '''Tutorial for reading a KV structure. Will casr members of a play based on the information you provide'''
 
     def __init__(self):
 

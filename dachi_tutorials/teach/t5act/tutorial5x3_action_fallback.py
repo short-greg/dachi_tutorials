@@ -102,8 +102,8 @@ class ImproveSynopsis(LLMAction):
 
 
 class Tutorial3(AgentTutorial):
-    '''Tutorial showing how to use the action
-    '''
+    '''A script creator demonstrating how to use an sequence with an action in a behavior tree.'''
+
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
         self.synopsis = dachi.Shared()

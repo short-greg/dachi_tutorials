@@ -8,6 +8,8 @@ import pydantic
 
 
 class ThemeCheck(pydantic.BaseModel):
+    """Checks whether the theme is valid
+    """
 
     valid: bool
     message: str
@@ -21,17 +23,19 @@ class ThemeCheck(pydantic.BaseModel):
 
 
 class Tutorial1(ChatTutorial):
+    '''A storywriter demonstrating how to combine multiple functionalities
+    from Dachi.'''
 
+    @property
+    def description(self) -> str:
+        return '''Tutorial for demonstrates how to write a story'''
+    
     def __init__(self):
 
         self.model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
         self._messages = []
         self.role = "You are a storywriter who writes original fictional stories."
     
-    @property
-    def description(self) -> str:
-        return '''Tutorial for writing a story'''
-
     def clear(self):
         self._messages = []
 

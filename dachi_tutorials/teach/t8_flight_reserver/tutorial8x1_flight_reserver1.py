@@ -6,19 +6,6 @@ from pydantic import BaseModel
 import pydantic
 
 
-class ThemeCheck(pydantic.BaseModel):
-
-    valid: bool
-    message: str
-
-    def render(self) -> str:
-        return f"""
-        # Valid: {self.valid}
-        
-        {self.message}
-        """
-
-
 class UserPref(BaseModel):
     '''
     UserPref is the preferences the user has for their trip.
@@ -32,8 +19,8 @@ class UserPref(BaseModel):
 
 
 class Tutorial1(ChatTutorial):
-    '''Tutorial for reading a struct with KV
-    '''
+    '''Flight attendant for reserving a flight, demonstrating using behavior tree agents'''
+
     def __init__(self):
 
         self.model = dachi.adapt.openai.OpenAIChatModel(
@@ -48,10 +35,6 @@ class Tutorial1(ChatTutorial):
         self.context = dachi.data.ContextStorage()
         self.dialog = dachi.Dialog(messages=[])
         self.pref = dachi.data.Shared(UserPref())
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial for reserving a flight, demonstrating using agents'''
 
     def clear(self):
         self.dialog = dachi.Dialog(messages=[])

@@ -8,12 +8,7 @@ import dachi.adapt.openai
 # EXAMPLE
 
 class Tutorial4(ChatTutorial):
-    '''Nested Signature tutorial
-    '''
-
-    @property
-    def description(self) -> str:
-        return '''Signature tutorial using nesting. First it picks movies then recommends'''
+    """Streaming signature tutorial uses nesting to first pick possible movies before recommending."""
 
     def __init__(self):
 

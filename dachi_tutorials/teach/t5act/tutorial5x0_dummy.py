@@ -26,7 +26,9 @@ class DummyAction(dachi.act.Action):
 
 
 class Tutorial0(AgentTutorial):
-    
+    '''Tutorial demonstrating asyncrhonous processing using async_map. 
+    Each sentence will be summarized and then the summaries will be summarized.'''
+
     @property
     def description(self) -> str:
         return '''Tutorial showing how to use an action'''

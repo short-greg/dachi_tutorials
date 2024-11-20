@@ -5,10 +5,9 @@ import dachi.adapt.openai
 
 
 class Tutorial2(ChatTutorial):
+    '''Tutorial demonstrating asyncrhonous processing using async_multi. 
+    The topic of your message will be summarized and main points listed.'''
 
-    @property
-    def description(self) -> str:
-        return '''Tutorial demonstrating asyncrhonous processing'''
 
     def __init__(self):
 
@@ -56,7 +55,6 @@ class Tutorial2(ChatTutorial):
         message = '\n\n'.join(results)
         yield message
         
-        # yield cur_message
         self._dialog.assistant(message)
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

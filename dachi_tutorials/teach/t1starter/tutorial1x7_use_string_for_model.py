@@ -5,12 +5,7 @@ import dachi.adapt.openai
 
 
 class Tutorial7(ChatTutorial):
-    '''Tutorial for making it proactive th
-    '''
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial for making the chatbot proactive using a string for the model in signature'''
+    '''Tutorial for making the chatbot proactive. It uses a string to reference the model in signature'''
 
     def __init__(self):
 

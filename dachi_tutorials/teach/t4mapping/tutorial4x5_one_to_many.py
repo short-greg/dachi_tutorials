@@ -6,6 +6,8 @@ import dachi.adapt.openai
 
 
 class Tutorial5(ChatTutorial):
+    '''Tutorial demonstrating asyncrhonous processing using async_map. 
+    Each sentence will be summarized and then the summaries will be summarized.'''
 
     @property
     def description(self) -> str:
@@ -67,8 +69,7 @@ class Tutorial5(ChatTutorial):
         summary = '\n\n'.join(results)
 
         yield summary
-        
-        # yield cur_message
+
         self._dialog.assistant(summary)
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

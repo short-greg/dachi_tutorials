@@ -8,7 +8,6 @@ import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx
 
 
-
 class Option(ABC):
 
     def __init__(self, name: str):
@@ -44,10 +43,11 @@ class Dropdown(Option):
 
 
 class ChatTutorial(ABC):
+    """A chat tutorial for using Dachi."""
 
     @property
     def description(self) -> str:
-        return ''
+        return self.__doc__
     
     @abstractmethod
     def forward(self, user_message: str) -> typing.Iterator[str]:
@@ -63,16 +63,16 @@ class ChatTutorial(ABC):
 
 class AgentTutorial(ABC):
 
+    @property
+    def description(self) -> str:
+        return self.__doc__
+
     def __init__(self, callback: typing.Callable, interval: float=1./60):
 
         self._callback = callback
         self._running = False
         self._interval = interval
         self._lock = threading.Lock()
-
-    @property
-    def description(self) -> str:
-        return ''
 
     def start(self):
         with self._lock:

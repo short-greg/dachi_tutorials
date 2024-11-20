@@ -7,11 +7,10 @@ import dachi.adapt.openai
 
 
 class Tutorial1(ChatTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''First tutorial just using ChatModel with no memory'''
-
+    """This tutorial uses the basic "ChatModel" in order to generate moive recommendations.
+    It has no memory.
+    """
+    
     def __init__(self):
 
         self.model = 'gpt-4o-mini'

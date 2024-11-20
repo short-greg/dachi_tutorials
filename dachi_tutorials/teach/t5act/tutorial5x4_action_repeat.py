@@ -68,10 +68,7 @@ class Approval(LLMAction):
 
 
 class Tutorial4(AgentTutorial):
-
-    @property
-    def description(self) -> str:
-        return  '''Tutorial showing how to repeat an action'''
+    '''A script creator demonstrating how to use repeat in a behavior tree.'''
 
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)

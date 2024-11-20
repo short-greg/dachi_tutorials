@@ -5,10 +5,7 @@ import dachi.adapt.openai
 
 
 class Tutorial6(ChatTutorial):
-
-    @property
-    def description(self) -> str:
-        return '''Tutorial for making the chatbot proactive'''
+    '''Tutorial for making the chatbot proactive in making movie recommendations.'''
 
     def __init__(self):
 
