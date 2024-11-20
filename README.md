@@ -19,7 +19,11 @@ Here's the updated README skeleton with the name "Dachi":
 
 ## Run
 
-To run **Dachi Tutorials**, use 
+To run **Dachi Tutorials**, first install dachi
+
+```bash
+pip install dachi
+```
 
 ## For chat demo systems
 These tutorials are for all sections but 5 and 6.
