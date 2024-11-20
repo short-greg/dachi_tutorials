@@ -4,7 +4,7 @@ Here's the updated README skeleton with the name "Dachi":
 
 # Dachi Tutorials - Demos and Tutorials Demonstrating the usage of Dachi
 
-**Dachi** is designed to provide flexibility and control when building intelligent systems using LLMs (Large Language Models). These tutorials demonstrate many of the features of Dachi
+**Dachi** is designed to provide flexibility and control when building intelligent systems using LLMs (Large Language Models). These tutorials demonstrate many of the features of Dachi and require Dachi be installed.
 
 ## Demos and Tutorials
 
