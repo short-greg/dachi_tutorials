@@ -2,6 +2,7 @@ from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
+from ..base import OpenAILLM
 
 
 class Tutorial6(ChatTutorial):
@@ -10,13 +11,17 @@ class Tutorial6(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.Dialog()
-        self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
+        self._dialog = dachi.ListDialog(
+            msg_renderer=dachi.RenderField()
+        )
+        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
 
     def clear(self):
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog(
+            msg_renderer=dachi.RenderField()
+        )
 
-    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def make_decision(self, question) -> str:
         """
         You must recommend a movie to the user. 
@@ -31,7 +36,7 @@ class Tutorial6(ChatTutorial):
         """
         pass
 
-    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def recommendation(self, question) -> str:
         """You must recommend a movie to the user.
         
@@ -51,23 +56,26 @@ class Tutorial6(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        # self._dialog.add(
-        #     dachi.TextMessage('system', self.recommendation.i(user_message))
-        # )
-        self._dialog.user(
-            user_message
+        self._dialog.add(
+            role='user', content=user_message, _inplace=True
         )
         res = ''
-        for p1, p2 in self.recommendation.stream_forward(
-            self._dialog.exclude('system').render()
+        dialog = dachi.exclude_messages(
+            self._dialog, 'system'
+        )
+        print(type(dialog))
+        for p2 in self.recommendation.stream(
+            dialog.render()
         ):
-            yield p2
-            res += p2
+            if p2 is not None:
+                yield p2
+                res += p2
       
-        # yield cur_message
-        self._dialog.assistant(p1)
+        self._dialog.add(
+            role='assistant', content=res, _inplace=True
+        )
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

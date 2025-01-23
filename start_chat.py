@@ -9,7 +9,9 @@ from dachi_tutorials.teach.t1starter import (
     tutorial1x2_signature,
     tutorial1x3_signature_stream,
     tutorial1x4_signature2,
-    tutorial1x5_with_history
+    tutorial1x5_with_history,
+    tutorial1x6_proactive, 
+    tutorial1x7_use_string_for_model
 )
 
 #     tutorial1x6_proactive, tutorial1x7_use_string_for_model,
@@ -57,8 +59,8 @@ tutorial_map = {
     'Tutorial 1-3': tutorial1x3_signature_stream.Tutorial3,
     'Tutorial 1-4': tutorial1x4_signature2.Tutorial4,
     'Tutorial 1-5': tutorial1x5_with_history.Tutorial5,
-    # 'Tutorial 1-6': tutorial1x6_proactive.Tutorial6,
-    # 'Tutorial 1-7': tutorial1x7_use_string_for_model.Tutorial7,
+    'Tutorial 1-6': tutorial1x6_proactive.Tutorial6,
+    'Tutorial 1-7': tutorial1x7_use_string_for_model.Tutorial7,
     # 'Tutorial 1-8': tutorial1x8_use_string_for_model_with_claude.Tutorial8,
     # 'Tutorial 1-9': tutorial1x9_use_string_for_model_with_gemini.Tutorial9,
     # 'Tutorial 1-10': tutorial1x10_use_string_for_model_with_assistants.Tutorial10,

@@ -42,8 +42,9 @@ class Tutorial5(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
+        cue: dachi.Cue = self.recommendation.i(user_message)
         self._dialog.add(
-            role='system', content=self.recommendation.i(user_message),
+            role='system', content=cue.text,
             _replace=True, ind=0, _inplace=True
         )
         self._dialog.add(
@@ -52,19 +53,18 @@ class Tutorial5(ChatTutorial):
 
         res = ''
         # TODO: FIX ERROR with it passing a string
-        for c in self._model.stream(
-            self._dialog
-        ):
+        for msg, c in self._model.stream(self._dialog):
             if c is not None:
                 yield c
                 res += c
 
         self._dialog.add(
-            role='assistant', content=user_message, _inplace=True
+            role='assistant', 
+            content=res, 
+            _inplace=True
         )
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
-        print('Dialog: ', self._dialog)
         for message in self._dialog:
             if include is None or include(message['role'], message['content']):
                 yield message['role'], message['content']
