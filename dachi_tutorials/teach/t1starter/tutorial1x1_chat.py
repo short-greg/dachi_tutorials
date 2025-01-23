@@ -1,10 +1,9 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-from abc import ABC
 import typing
 import dachi.adapt.openai
-
+import openai
 
 class Tutorial1(ChatTutorial):
     """This tutorial uses the basic "ChatModel" in order to generate moive recommendations.
@@ -13,8 +12,11 @@ class Tutorial1(ChatTutorial):
     
     def __init__(self):
 
-        self.model = 'gpt-4o-mini'
-        self.ai = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
+        self.model_kwargs = {
+            'model': 'gpt-4o-mini'
+        }
+        self.client = openai.Client()
+        self.text_processor = dachi.adapt.openai.OpenAITextProc()
         self._messages = []
 
     def render_header(self):
@@ -24,7 +26,7 @@ class Tutorial1(ChatTutorial):
         self._messages = []
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
-        user_message = dachi.TextMessage('user', user_message)
+        user_message = dachi.Msg(role='user', content=user_message)
         instruction = f"""
         Answer the user's question about movies. Don't talk about anything else
 
@@ -33,11 +35,25 @@ class Tutorial1(ChatTutorial):
         """
         self._messages.append(user_message)
 
-        result = self.ai(dachi.TextMessage('user', instruction))
-        yield result.val
-        self._messages.append(result.message)
+        messages = [
+            dachi.Msg(role='system', content=instruction),
+            *[msg.to_input() for msg in self._messages]
+        ]
+
+        print(
+            self.client.chat.completions.create,
+            messages,
+            self.model_kwargs
+        )
+        assistant_msg, text = dachi.ai.llm_forward(
+            self.client.chat.completions.create, messages=messages,
+            _resp_proc=self.text_processor,
+            **self.model_kwargs
+        )
+        self._messages.append(assistant_msg)
+        yield text
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._messages:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

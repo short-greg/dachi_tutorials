@@ -2,6 +2,7 @@ from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
+from ..base import OpenAILLM
 
 
 class Tutorial5(ChatTutorial):
@@ -12,20 +13,19 @@ class Tutorial5(ChatTutorial):
 
     def __init__(self):
 
-        self.model = 'gpt-4o-mini'
-        self._dialog = dachi.Dialog()
-        self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
+        self._dialog = dachi.ListDialog()
+        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
 
     def clear(self):
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog()
 
-    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def pick_movies(self, question) -> str:
         """List up several movies related to the user's question {question}
         """
         pass
 
-    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def recommendation(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else.
         
@@ -43,20 +43,28 @@ class Tutorial5(ChatTutorial):
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
         self._dialog.add(
-            dachi.TextMessage('system', self.recommendation.i(user_message))
+            role='system', content=self.recommendation.i(user_message),
+            _replace=True, ind=0, _inplace=True
         )
-        self._dialog.user(
-            user_message
+        self._dialog.add(
+            role='user', content=user_message, _inplace=True
         )
+
         res = ''
-        for p1, p2 in self._dialog.stream_prompt(self._model):
-            yield p2.val
-            res += p2.val
-      
-        # yield cur_message
-        # self._messages.append(dachi.TextMessage('assistant', p1.val))
-    
+        # TODO: FIX ERROR with it passing a string
+        for c in self._model.stream(
+            self._dialog
+        ):
+            if c is not None:
+                yield c
+                res += c
+
+        self._dialog.add(
+            role='assistant', content=user_message, _inplace=True
+        )
+
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
+        print('Dialog: ', self._dialog)
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

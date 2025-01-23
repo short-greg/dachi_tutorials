@@ -6,6 +6,7 @@ import streamlit as st
 import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx
+import openai
 
 
 class Option(ABC):
@@ -110,3 +111,56 @@ class AgentTutorial(ABC):
     @abstractmethod
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         pass
+
+
+class OpenAILLM(dachi.ai.LLM):
+
+    def __init__(self, model='gpt-4o-mini', resp_procs=[], kwargs: typing.Dict=None):
+        kwargs = kwargs or {}
+        kwargs['model'] = model
+        super().__init__(
+            self._forward, self._aforward, 
+            self._stream, self._astream,
+            resp_procs, 
+            kwargs
+        )
+    
+    def _forward(self, messages: typing.List[typing.Dict], **kwargs):
+        client = openai.Client()
+        print('Sending forward')
+        print(messages)
+        print(kwargs)
+        res = client.chat.completions.create(
+            messages=messages,
+            stream=False,
+            **kwargs
+        )
+        print(res)
+        return res
+
+    async def _aforward(self, messages: typing.List[typing.Dict], **kwargs):
+        client = openai.AsyncClient()
+        return client.chat.completions.create(
+            messages=messages,
+            stream=False,
+            **kwargs
+        )
+
+    def _stream(self, messages: typing.List[typing.Dict], **kwargs):
+        client = openai.Client()
+        for chunk in client.chat.completions.create(
+            messages=messages,
+            stream=True,
+            **kwargs
+        ):
+            yield chunk
+
+    async def _astream(self, messages: typing.List[typing.Dict], **kwargs):
+        client = openai.AsyncClient()
+        async for chunk in await client.chat.completions.create(
+            messages=messages,
+            stream=True,
+            **kwargs
+        ):
+            yield chunk
+
