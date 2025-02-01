@@ -63,7 +63,6 @@ class Tutorial6(ChatTutorial):
         dialog = dachi.exclude_messages(
             self._dialog, 'system'
         )
-        print(type(dialog))
         for p2 in self.recommendation.stream(
             dialog.render()
         ):

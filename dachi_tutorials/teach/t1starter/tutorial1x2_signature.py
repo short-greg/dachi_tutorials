@@ -32,8 +32,12 @@ class Tutorial2(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
 
-        self._messages.append(dachi.Msg(role='user', content=user_message))
-        response = self.answer_question(user_message)
+        self._messages.append(
+            dachi.Msg(role='user', content=user_message)
+        )
+        response = self.answer_question(
+            user_message
+        )
         self._messages.append(
             dachi.Msg(role='assistant', content=response)
         )

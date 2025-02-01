@@ -3,6 +3,7 @@ import dachi
 import typing
 import dachi.adapt.openai
 
+from ..base import OpenAILLM
 
 
 class Tutorial5(ChatTutorial):
@@ -15,12 +16,11 @@ class Tutorial5(ChatTutorial):
 
     def __init__(self):
 
-        self.model = 'gpt-4o-mini'
-        self._dialog = dachi.Dialog()
-        self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
+        self._dialog = dachi.ListDialog()
+        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
 
     def clear(self):
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog()
 
     @dachi.signaturefunc('_model')
     def main_points(self, topic) -> str:
@@ -58,8 +58,9 @@ class Tutorial5(ChatTutorial):
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
         split_message = user_message.split('.')
-        self._dialog.user(
-            user_message
+        user_message = dachi.Msg(role='user', content=user_message)
+        self._dialog.insert(
+            user_message, inplace=True
         )
 
         results = dachi.async_map(
@@ -69,10 +70,13 @@ class Tutorial5(ChatTutorial):
         summary = '\n\n'.join(results)
 
         yield summary
-
-        self._dialog.assistant(summary)
+        assistant = dachi.Msg(
+            role='assistant', content=summary)
+        self._dialog.insert(
+            assistant, inplace=True
+        )
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

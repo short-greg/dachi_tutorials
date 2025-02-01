@@ -2,6 +2,7 @@ from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
+from ..base import OpenAILLM
 
 
 import pydantic
@@ -42,15 +43,14 @@ class Tutorial5(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.signaturefunc(
+    @dachi.ai.signaturemethod(
         # 'model', 
         # [dachi.KVRead(Project), dachi.KVRead(Role)]
-        dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), 
+        OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()),
         reader=dachi.MultiRead(outs=[
             dachi.read.KVRead(key_descr=Project), dachi.read.KVRead(key_descr=Role)]
         )
     )
-    # key_descr=Role
     def decide_project(self, message) -> typing.Tuple[Project, Role]:
         """You need to decide on the project and then a role for the user that is appropriate for the user based on the message
 
@@ -60,7 +60,6 @@ class Tutorial5(ChatTutorial):
         Output as key values with this format
         {template}
         """
-        # READER.template()
         template = dachi.MultiRead(outs=[
             dachi.read.KVRead(key_descr=Project), dachi.read.KVRead(key_descr=Role)]
         ).template()
@@ -71,7 +70,8 @@ class Tutorial5(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        self._messages.append(dachi.TextMessage('user', user_message))
+        user_message = dachi.Msg(role='user', content=user_message)
+        self._messages.append(user_message)
 
         decision = self.decide_project(self._messages[-1])
         print(decision)
@@ -82,9 +82,10 @@ class Tutorial5(ChatTutorial):
         role_str = f'Your role is {role['name']}, {role['description']}'
         response = f'{project_str}\n{role_str}'
         yield response
-        self._messages.append(dachi.TextMessage('assistant', response))
-    
+        assistant = dachi.Msg(role='assistant', content=response)
+        self._messages.append(assistant)    
+
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._messages:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

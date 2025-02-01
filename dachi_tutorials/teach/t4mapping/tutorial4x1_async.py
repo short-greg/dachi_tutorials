@@ -4,6 +4,8 @@ import typing
 import dachi.adapt.openai
 import asyncio
 
+from ..base import OpenAILLM
+
 
 class Tutorial1(ChatTutorial):
     '''Tutorial demonstrating asyncrhonous processing. 
@@ -12,14 +14,12 @@ class Tutorial1(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.Dialog()
-        self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
+        self._dialog = dachi.ListDialog()
 
     def clear(self):
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog()
 
-    @dachi.signaturefunc(
-        dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def summarize(self, topic) -> str:
         """Summarize the topic that the user presents in his messages
 
@@ -30,8 +30,7 @@ class Tutorial1(ChatTutorial):
         """
         pass
 
-    @dachi.signaturefunc(
-        dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def list_main_points(self, topic) -> str:
         """List the main points of the topic that the user is requesting in his messages
 
@@ -45,32 +44,39 @@ class Tutorial1(ChatTutorial):
     def render_header(self):
         pass
 
-    async def excute(self, topic: str) -> typing.Tuple[str, str]:
+    async def execute(self, topic: str) -> typing.Tuple[str, str]:
 
         tasks = []
         async with asyncio.TaskGroup() as tg:
             tasks.append(
-                tg.create_task(self.list_main_points.async_forward(topic))
+                tg.create_task(self.list_main_points.aforward(topic))
             )
             tasks.append(
-                tg.create_task(self.summarize.async_forward(topic))
+                tg.create_task(self.summarize.aforward(topic))
             )
         return tuple(task.result() for task in tasks)
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        self._dialog.user(
-            user_message
+        user_message = dachi.Msg(role='user', content=user_message)
+        self._dialog.insert(
+            user_message, inplace=True
         )
-        topic = self._dialog.exclude('system').render()
+
+        dialog = dachi.exclude_messages(
+            self._dialog, 'system'
+        )
+        topic = dialog.render()
         
-        results = asyncio.run(self.excute(topic))
-        message = '\n\n'.join(results)
-        yield message
+        response = asyncio.run(self.execute(topic))
+        yield response
         
-        self._dialog.assistant(message)
+        assistant = dachi.Msg(role='assistant', content=response)
+        self._dialog.insert(
+            assistant, inplace=True
+        )
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

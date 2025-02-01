@@ -2,6 +2,7 @@ from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.adapt.openai
+from ..base import OpenAILLM
 
 
 class Role(dachi.op.Description):
@@ -24,8 +25,10 @@ class Tutorial3(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.Dialog()
-        self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
+        self._dialog = dachi.ListDialog(
+            msg_renderer=dachi.RenderField()
+        )
+        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
         self._role = Role(
             name="Movie Recommender",
             descr=
@@ -37,9 +40,11 @@ class Tutorial3(ChatTutorial):
         )
 
     def clear(self):
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog(
+            msg_renderer=dachi.RenderField()
+        )
 
-    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def make_decision(self, question) -> str:
         """
         {instructions}
@@ -66,7 +71,7 @@ class Tutorial3(ChatTutorial):
             'instructions': instruction
         }
 
-    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def recommendation(self, question) -> str:
         """
         {role}
@@ -84,19 +89,26 @@ class Tutorial3(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        self._dialog.user(
-            user_message
+        self._dialog.insert(
+            dachi.Msg(role='user', content=user_message), inplace=True
         )
         res = ''
-        for p1, p2 in self.recommendation.stream_forward(
-            self._dialog.exclude('system').render()
+        dialog = dachi.exclude_messages(
+            self._dialog, 'system'
+        )
+        for c in self.recommendation.stream(
+            dialog.render()
         ):
-            yield p2
-            res += p2
+            if c is not None:
+                yield c
+                res += c
       
-        self._dialog.assistant(p1)
+        self._dialog.insert(
+            dachi.Msg(role='assistant', content=res),
+            inplace=True
+        )
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

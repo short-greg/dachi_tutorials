@@ -3,6 +3,7 @@ import dachi
 import typing
 import dachi.adapt.openai
 
+from ..base import OpenAILLM
 
 class Tutorial1(ChatTutorial):
 
@@ -13,8 +14,10 @@ class Tutorial1(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.Dialog()
-        self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
+        self._dialog = dachi.ListDialog(
+            msg_renderer=dachi.RenderField()
+        )
+        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
         self._role = dachi.Cue(
             text=
             """
@@ -25,9 +28,11 @@ class Tutorial1(ChatTutorial):
         )
 
     def clear(self):
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog(
+            msg_renderer=dachi.RenderField()
+        )
 
-    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def make_decision(self, question) -> str:
         """
         {instructions}
@@ -51,7 +56,7 @@ class Tutorial1(ChatTutorial):
             'instructions': instruction
         }
 
-    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'))
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def recommendation(self, question) -> str:
         """
         {role}
@@ -69,69 +74,27 @@ class Tutorial1(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        self._dialog.user(
-            user_message
+        self._dialog.insert(
+            dachi.Msg(role='user', content=user_message), inplace=True
         )
         res = ''
-        for p1, p2 in self.recommendation.stream_forward(
-            self._dialog.exclude('system').render()
+
+        dialog = dachi.exclude_messages(
+            self._dialog, 'system'
+        )
+        for c in self.recommendation.stream(
+            dialog.render()
         ):
-            yield p2
-            res += p2
-      
-        self._dialog.assistant(p1)
+            if c is not None:
+                yield c
+                res += c
+        
+        self._dialog.insert(
+            dachi.Msg(role='assistant', content=res),
+            inplace=True
+        )
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
-
-
-# class Tutorial1(Tutorial):
-#     '''Tutorial for making it proactive
-#     '''
-
-#     def __init__(self):
-
-#         self.model = 'gpt-4o-mini'
-#         self._dialog = dachi.Dialog()
-#         self._model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
-
-#         self._instruction = dachi.Cue(
-#             "Answer the user's question about movies. Don't talk about anything else."
-#         )
-#         self._data = dachi.Cue(
-#             """
-#             # User Question
-#             {question}
-#             """
-#         )
-
-#     def render_header(self):
-#         pass
-
-#     def forward(self, user_message: str) -> typing.Iterator[str]:
-        
-#         self._dialog.user(
-#             user_message
-#         )
-#         res = ''
-
-#         data = dachi.fill(self._data, question=user_message)
-#         x = dachi.cat([self._instruction, data])
-#         self._dialog.system(
-#             x, 0, True
-#         )
-        
-#         for p1, p2 in self._dialog.stream_prompt(self._model):
-#             yield p2.val
-#             res += p2.val
-      
-#         self._messages.assistant(p1.val)
-    
-#     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
-#         for message in self._dialog:
-#             if include is None or include(message['source'], message['text']):
-#                 yield message['source'], message['text']
-
-
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

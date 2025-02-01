@@ -10,12 +10,16 @@ class Tutorial8(ChatTutorial):
     def __init__(self):
 
         self._dialog = dachi.Dialog()
+
+        self._dialog = dachi.ListDialog(
+            msg_renderer=dachi.RenderField()
+        )
         self._model = dachi.adapt.anthropic.AnthropicModel()
 
     def clear(self):
         self._dialog = dachi.Dialog()
 
-    @dachi.signaturefunc('_model')
+    @dachi.ai.signaturemethod(engine='_model')
     def make_decision(self, question) -> str:
         """
         You must recommend a movie to the user. 
@@ -30,7 +34,7 @@ class Tutorial8(ChatTutorial):
         """
         pass
 
-    @dachi.signaturefunc('_model')
+    @dachi.ai.signaturemethod(engine='_model')
     def recommendation(self, question) -> str:
         """You must recommend a movie to the user.
         

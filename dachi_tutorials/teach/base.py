@@ -140,7 +140,7 @@ class OpenAILLM(dachi.ai.LLM):
 
     async def _aforward(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.AsyncClient()
-        return client.chat.completions.create(
+        return await client.chat.completions.create(
             messages=messages,
             stream=False,
             **kwargs

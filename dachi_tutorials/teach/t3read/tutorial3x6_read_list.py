@@ -3,6 +3,7 @@ import dachi
 import typing
 import dachi.adapt.openai
 
+from ..base import OpenAILLM
 # TODO: FINISH
 
 import pydantic
@@ -30,6 +31,10 @@ class Tutorial4(ChatTutorial):
     def clear(self):
         self._messages = []
 
+    @dachi.ai.signaturemethod(
+        OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()),
+        reader=dachi.read.StructListRead(Role)
+    )
     @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.read.StructListRead(Role))
     def decide_role(self, text) -> dachi.StructList[Role]:
         """You need to cast members of a play. 
@@ -49,14 +54,16 @@ class Tutorial4(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        self._messages.append(dachi.TextMessage('user', user_message))
+        user_message = dachi.Msg(role='user', content=user_message)
+        self._messages.append(user_message)
 
         role = self.decide_role(self._messages[-1])
         response = f'Your role is {role['name']}, {role['description']}'
         yield response
-        self._messages.append(dachi.TextMessage('assistant', response))
+        assistant = dachi.Msg(role='assistant', content=response)
+        self._messages.append(assistant)        
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._messages:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']
