@@ -37,10 +37,10 @@ from dachi_tutorials.teach.t3read import (
 )
 from dachi_tutorials.teach.t4mapping import (
     tutorial4x1_async,
-    # utorial4x2_async_multi,
-    # tutorial4x3_iterative_reduce,
-    # tutorial4x4_map_reduce,
-     #tutorial4x5_one_to_many
+    tutorial4x2_async_multi,
+    tutorial4x3_iterative_reduce,
+    tutorial4x4_map_reduce,
+    tutorial4x5_one_to_many
 )
 # from dachi_tutorials.teach.t7_storywriter import (
 #     tutorial7x1_write_story,
@@ -77,10 +77,10 @@ tutorial_map = {
     'Tutorial 3-5': tutorial3x5_read_multi.Tutorial5,
     'Tutorial 3-7': tutorial3x7_template.Tutorial7,
     'Tutorial 4-1': tutorial4x1_async.Tutorial1,
-    # 'Tutorial 4-2': tutorial4x2_async_multi.Tutorial2,
-    # 'Tutorial 4-3': tutorial4x3_iterative_reduce.Tutorial3,
-    # 'Tutorial 4-4': tutorial4x4_map_reduce.Tutorial4,
-    # 'Tutorial 4-5': tutorial4x5_one_to_many.Tutorial5,
+    'Tutorial 4-2': tutorial4x2_async_multi.Tutorial2,
+    'Tutorial 4-3': tutorial4x3_iterative_reduce.Tutorial3,
+    'Tutorial 4-4': tutorial4x4_map_reduce.Tutorial4,
+    'Tutorial 4-5': tutorial4x5_one_to_many.Tutorial5,
     # 'Tutorial 7-1': tutorial7x1_write_story.Tutorial1,
     # 'Tutorial 8-1': tutorial8x1_flight_reserver1.Tutorial1,
     

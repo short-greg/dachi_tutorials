@@ -52,13 +52,13 @@ class Tutorial2(ChatTutorial):
         ).render()
 
         results = dachi.async_multi(
-            self.list_main_points.async_forward(topic),
-            self.summarize.async_forward(topic)
+            self.list_main_points.aforward(topic),
+            self.summarize.aforward(topic)
         )
         message = '\n\n'.join(results)
         yield message
         
-        assistant = dachi.Msg(role='assistant', content=response)
+        assistant = dachi.Msg(role='assistant', content=message)
         self._dialog.insert(
             assistant, inplace=True
         )

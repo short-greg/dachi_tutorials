@@ -20,7 +20,7 @@ class Tutorial3(ChatTutorial):
     def clear(self):
         self._dialog = dachi.ListDialog()
 
-    @dachi.signaturefunc(
+    @dachi.ai.signaturemethod(
         OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def summarize(self, cur_summary, topic) -> str:
         """Summarize the topic that is shared. You will be sent the topic sentence by sentence
@@ -54,7 +54,7 @@ class Tutorial3(ChatTutorial):
         )
         yield summary
         
-        assistant = dachi.Msg(role='assistant', content=response)
+        assistant = dachi.Msg(role='assistant', content=summary)
         self._dialog.insert(
             assistant, inplace=True
         )
