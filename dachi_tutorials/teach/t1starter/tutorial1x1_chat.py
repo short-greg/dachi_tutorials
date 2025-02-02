@@ -40,11 +40,11 @@ class Tutorial1(ChatTutorial):
             *[msg.to_input() for msg in self._messages]
         ]
 
-        print(
-            self.client.chat.completions.create,
-            messages,
-            self.model_kwargs
-        )
+        # print(
+        #     self.client.chat.completions.create,
+        #     messages,
+        #     self.model_kwargs
+        # )
         assistant_msg, text = dachi.ai.llm_forward(
             self.client.chat.completions.create, messages=messages,
             _resp_proc=self.text_processor,

@@ -4,6 +4,7 @@ import typing
 import dachi.adapt.openai
 from pydantic import BaseModel
 import pydantic
+from ..base import OpenAILLM
 
 
 class UserPref(BaseModel):
@@ -23,8 +24,7 @@ class Tutorial1(ChatTutorial):
 
     def __init__(self):
 
-        self.model = dachi.adapt.openai.OpenAIChatModel(
-            'gpt-4o-mini')
+        self.model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
         self.role = (
             "You work for an airline agency that "
             "needs to help the customer book a package tour."
@@ -33,14 +33,16 @@ class Tutorial1(ChatTutorial):
         self.buffer_iter = self.buffer.it()
         self.waiting = False
         self.context = dachi.data.ContextStorage()
-        self.dialog = dachi.Dialog(messages=[])
+        self._dialog = dachi.ListDialog(
+            msg_renderer=dachi.RenderField()
+        )
         self.pref = dachi.data.Shared(UserPref())
 
     def clear(self):
-        self.dialog = dachi.Dialog(messages=[])
+        self._dialog = dachi.ListDialog()
 
     @dachi.act.taskfunc('pref')
-    @dachi.signaturemethod('model', response_format={"type": "json_object"})
+    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()), response_format={"type": "json_object"})
     def update_pref(self) -> UserPref:
         """
         {role}
@@ -58,10 +60,11 @@ class Tutorial1(ChatTutorial):
         Here is the template for the result as a JSON
         {TEMPLATE}
         """
+        dialog = dachi.exclude_messages(self._dialog, 'system', 'role')
         return {
             'role': self.role,
             'doc': dachi.utils.doc(UserPref),
-            'dialog': self.dialog.exclude('system').render(),
+            'dialog': dialog.render(),
             'pref': dachi.render(self.pref.data)
         }
 
@@ -69,18 +72,19 @@ class Tutorial1(ChatTutorial):
     def select_destination(self) -> typing.Iterator[dachi.act.Task]:
 
         yield self.pref.data.destination is None
+        dialog = dachi.exclude_messages(self._dialog, 'system', 'role')
 
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.TextMessage(
-                'system', 
-                f"""
+            dachi.Msg(
+                role='system', 
+                content=f"""
                 Role: {self.role}
 
                 Help the user decide on a travel destination for the tour. 
 
                 # Current Dialog
-                {self.dialog.exclude('system').render()}
+                {dialog.render()}
                 
                 """
             ), self.context.stream_destination
@@ -92,17 +96,20 @@ class Tutorial1(ChatTutorial):
     ) -> typing.Iterator[dachi.act.Task]:
 
         yield self.pref.data.package is None
+        dialog = dachi.exclude_messages(
+            self._dialog, 'system', 'role'
+        )
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.TextMessage(
-                'system', 
-                f"""
+            dachi.Msg(
+                role='system', 
+                content=f"""
                 Role: {self.role}
 
                 Help the user decide on a package based on his destination.
 
                 # Current Dialog
-                {self.dialog.exclude('system').render()}
+                {dialog.render()}
                 
                 """
             ), self.context.stream_package
@@ -115,18 +122,21 @@ class Tutorial1(ChatTutorial):
 
         yield self.pref.data.num_nights is None
         yield self.pref.data.start_date is None
+        dialog = dachi.exclude_messages(
+            self._dialog, 'system', 'role'
+        )
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.TextMessage(
-                'system', 
-                f"""
+            dachi.Msg(
+                role='system', 
+                content=f"""
                 Role: {self.role}
 
                 Help the customer decide on the number of days and
                 nights he will stay and the date he will stay.
 
                 # Current Dialog
-                {self.dialog.exclude('system').render()}
+                {dialog.render()}
                 """
             ), self.context.stream_model
         )
@@ -136,18 +146,21 @@ class Tutorial1(ChatTutorial):
         self
     ) -> typing.Iterator[dachi.act.Task]:
 
+        dialog = dachi.exclude_messages(
+            self._dialog, 'system', 'role'
+        )
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.TextMessage(
-                'system', 
-                f"""
+            dachi.Msg(
+                role='system', 
+                content=f"""
                 Role: {self.role}
 
                 You have helped the customer decide on his plan. 
                 Answer any other questions he might have.
 
                 # Current Dialog
-                {self.dialog.exclude('system').render()}
+                {dialog.render()}
                 """
             ), self.context.stream_disc
         )
@@ -157,8 +170,9 @@ class Tutorial1(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        self.dialog.append(
-            dachi.TextMessage('user', user_message)
+        user_message = dachi.Msg(role='user', content=user_message)
+        self._dialog.insert(
+            user_message, inplace=True
         )
         self.buffer = dachi.data.Buffer()
         self.buffer_iter = self.buffer.it()
@@ -170,6 +184,7 @@ class Tutorial1(ChatTutorial):
 
         text = ''
 
+
         while not status.is_done:
             status = dachi.act.sequence([
                 self.update_pref.task(),
@@ -180,19 +195,22 @@ class Tutorial1(ChatTutorial):
                     self.end_discussion.task()
                 ], self.context.select)
             ], self.context.seq)()
-            cur_text = ''.join(self.buffer_iter.read_map(lambda x: x.val))
+            cur_text = ''.join(self.buffer_iter.read_map(lambda x: x if x is not None else ''))
 
             yield cur_text
             text += cur_text
         
         self.context.clear()
 
-        self.dialog.append(dachi.TextMessage('assistant', text))
+        asst_msg = dachi.Msg(role='assistant', content=text)
+        self._dialog.insert(
+            asst_msg, inplace=True
+        )
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
-        for message in self.dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+        for message in self._dialog:
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']
 
 
 def str2bool(v):

@@ -9,6 +9,7 @@ from .base import Dropdown
 import streamlit as st
 
 import typing
+from ..base import OpenAILLM
 
 
 # Assign the Kaggle data set URL into variable
@@ -24,8 +25,10 @@ class MoviesTutorial(ChatTutorial):
 
         self.model = 'gpt-3.5-turbo'
         self.dialog = dachi.Dialog()
-        self.ai_model = dachi.adapt.OpenAIChatModel(
-            self.model, temperature=0.0
+
+        self.ai_model = OpenAILLM(
+            resp_procs=dachi.adapt.openai.OpenAITextProc(),
+            temperature=0.0
         )
         self.dialog.system(
             "Respond to the user's questions about the data provided in the next message."

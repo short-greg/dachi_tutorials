@@ -4,16 +4,19 @@ import typing
 import dachi.adapt.openai
 from abc import abstractmethod
 import random
+from ..base import OpenAILLM
 
 
 class LLMAction(dachi.act.Action):
 
-    def __init__(self, response: dachi.Shared):
+    def __init__(self, response: dachi.data.Shared):
         super().__init__()
 
-        self._model = dachi.adapt.openai.OpenAIChatModel(
-            'gpt-4o-mini', temperature=1.0
+        self._model = OpenAILLM(
+            resp_procs=dachi.adapt.openai.OpenAITextProc(),
+            kwargs={'temperature': 1.0}
         )
+
         self.response = response
 
     @property
@@ -27,9 +30,9 @@ class LLMAction(dachi.act.Action):
         if r > 0.002:
             return dachi.act.TaskStatus.FAILURE
         
-        message = dachi.TextMessage('system', self.prompt)
+        message = dachi.Msg(role='system', content=self.prompt)
         
-        self.response.set(self._model(message).val)
+        self.response.set(self._model(message)[1])
         return dachi.act.TaskStatus.SUCCESS
     
     def reset(self):

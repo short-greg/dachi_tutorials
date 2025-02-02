@@ -5,17 +5,19 @@ import typing
 import dachi.adapt.openai
 import random
 
+from ..base import OpenAILLM
 
-model = dachi.adapt.openai.OpenAIChatModel(
-    'gpt-4o-mini', temperature=1.0
+
+model = OpenAILLM(
+    resp_procs=dachi.adapt.openai.OpenAITextProc(),
+    kwargs={'temperature': 1.0}
 )
-
 
 class Tutorial2(AgentTutorial):
     '''A script creator demonstrating how to use a sequence
     with functions in a behavior tree.'''
 
-    @dachi.signaturefunc(engine=model)
+    @dachi.ai.signaturemethod(engine=model)
     def propose_synopsis(self) -> str:
         """
 
@@ -26,7 +28,7 @@ class Tutorial2(AgentTutorial):
         """
         pass
 
-    @dachi.signaturefunc(engine=model)
+    @dachi.ai.signaturemethod(engine=model)
     def self_critique(self, synopsis) -> str:
         """Role: Strict Screenwriter
         You must evaluate your screenplay synopsis strictly and whether
@@ -44,8 +46,8 @@ class Tutorial2(AgentTutorial):
         """
         pass
 
-    @dachi.signaturefunc(engine=model)
-    def approve_helper(self, critique: dachi.Shared) -> str:
+    @dachi.ai.signaturemethod(engine=model)
+    def approve_helper(self, critique: dachi.data.Shared) -> str:
         """Role: Strict Screenwriter
         Decide whether to reject or accept your synopsis based.
         Think about how the studio will receive this script.
@@ -60,7 +62,7 @@ class Tutorial2(AgentTutorial):
         """
         pass
 
-    def approve(self, critique: dachi.Shared) -> bool:
+    def approve(self, critique: dachi.data.Shared) -> bool:
         result = self.approve_helper(critique)
         if result == 'accept':
             return True
@@ -69,22 +71,17 @@ class Tutorial2(AgentTutorial):
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
 
-        self.synopsis = dachi.Shared()
-        self.approval = dachi.Shared()
-        self.critique = dachi.Shared()
-        self._ctx = dachi.ContextStorage()
+        self.synopsis = dachi.data.Shared()
+        self.approval = dachi.data.Shared()
+        self.critique = dachi.data.Shared()
+        self._ctx = dachi.data.ContextStorage()
         self._timer = dachi.act.RandomTimer(0.5, 1.5)
 
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog()
 
     def clear(self):
-        self._dialog = dachi.Dialog()
-
-    def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
-        for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
-
+        self._dialog = dachi.ListDialog()
+        
     def tick(self) -> typing.Optional[str]:
 
         sequence = dachi.act.sequence([
@@ -106,7 +103,10 @@ class Tutorial2(AgentTutorial):
                 f"{self.critique.get()}"
             )
             self._callback(response)
-            self._dialog.assistant(response)
+            self._dialog.insert(
+                dachi.Msg(role='assistant', content=response), inplace=True
+            )
+
         elif status.failure:
             response = (
                 f"The synopsis was rejected\n"
@@ -114,7 +114,10 @@ class Tutorial2(AgentTutorial):
                 f"{self.critique.get()}"
             )
             self._callback(response)
-            self._dialog.assistant(response)
+            self._dialog.insert(
+                dachi.Msg(role='assistant', content=response), inplace=True
+            )
+
     
         if status.is_done:
             self.synopsis.data = None
@@ -126,5 +129,5 @@ class Tutorial2(AgentTutorial):
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

@@ -3,15 +3,17 @@ import dachi
 import typing
 import dachi.adapt.openai
 
+from ..base import OpenAILLM
 
-model = dachi.adapt.openai.OpenAIChatModel(
-    'gpt-4o-mini', temperature=1.0
+model = OpenAILLM(
+    resp_procs=dachi.adapt.openai.OpenAITextProc(),
+    kwargs={'temperature': 0.0}
 )
 
 class Tutorial1(AgentTutorial):
     '''A script creator demonstrating how to use an action in a behavior tree.'''
 
-    @dachi.signaturefunc(engine=model)
+    @dachi.ai.signaturemethod(engine=model)
     def propose_synopsis(self) -> str:
         """
         Role: Creative Screenwriter
@@ -25,11 +27,11 @@ class Tutorial1(AgentTutorial):
 
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
-        self._dialog = dachi.Dialog()
-        self._response = dachi.Shared()
+        self._dialog = dachi.ListDialog()
+        self._response = dachi.data.Shared()
 
     def clear(self):
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
@@ -38,9 +40,11 @@ class Tutorial1(AgentTutorial):
         )()
         if status.success:
             self._callback(self._response.get())
-            self._dialog.assistant(self._response.get())
+            self._dialog.insert(
+                dachi.Msg(role='assistant', content=self._response.get()), inplace=True
+            )
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

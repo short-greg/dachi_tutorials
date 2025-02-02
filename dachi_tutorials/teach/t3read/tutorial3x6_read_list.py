@@ -35,7 +35,6 @@ class Tutorial4(ChatTutorial):
         OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()),
         reader=dachi.read.StructListRead(Role)
     )
-    @dachi.signaturefunc(dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini'), reader=dachi.read.StructListRead(Role))
     def decide_role(self, text) -> dachi.StructList[Role]:
         """You need to cast members of a play. 
         Decide on the roles for the cast based on the text they provide

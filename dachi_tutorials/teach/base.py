@@ -127,15 +127,11 @@ class OpenAILLM(dachi.ai.LLM):
     
     def _forward(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.Client()
-        print('Sending forward')
-        print(messages)
-        print(kwargs)
         res = client.chat.completions.create(
             messages=messages,
             stream=False,
             **kwargs
         )
-        print(res)
         return res
 
     async def _aforward(self, messages: typing.List[typing.Dict], **kwargs):

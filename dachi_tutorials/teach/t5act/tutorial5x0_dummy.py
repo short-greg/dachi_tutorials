@@ -37,30 +37,33 @@ class Tutorial0(AgentTutorial):
         super().__init__(callback, interval)
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog()
         self._task = DummyAction()
 
     def clear(self):
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog()
     
-    def messages(
-        self, include: typing.Callable[[str, str], bool]=None
-    ) -> typing.Iterator[typing.Tuple[str, str]]:
-        for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+    # def messages(
+    #     self, include: typing.Callable[[str, str], bool]=None
+    # ) -> typing.Iterator[typing.Tuple[str, str]]:
+    #     for message in self._dialog:
+    #         if include is None or include(message['role'], message['content']):
+    #             yield message['role'], message['content']
 
     def tick(self) -> typing.Optional[str]:
         
         status = self._task.tick()
         if status.success:
             self._callback(self._task.response)
-            self._dialog.assistant(self._task.response)
+
+            assistant = dachi.Msg(role='assistant', content=self._task.response)
+            self._dialog.insert(
+                assistant, inplace=True
+            )
+
         self._task.reset()
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
-
-
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

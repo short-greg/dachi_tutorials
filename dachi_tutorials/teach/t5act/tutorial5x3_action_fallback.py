@@ -9,7 +9,7 @@ from .utils import LLMAction
 
 class ProposeSynopsis(LLMAction):
 
-    def __init__(self, synopsis: dachi.Shared):
+    def __init__(self, synopsis: dachi.data.Shared):
         super().__init__(synopsis)
 
     @property
@@ -30,9 +30,9 @@ class ProposeSynopsis(LLMAction):
         if random.random() > 0.002:
             return dachi.act.TaskStatus.RUNNING
         
-        message = dachi.TextMessage('system', self.prompt)
+        message = dachi.Msg(role='system', content=self.prompt)
         
-        self.response.set(self._model(message).val)
+        self.response.set(self._model(message)[1])
         return dachi.act.TaskStatus.SUCCESS
 
 
@@ -42,7 +42,7 @@ class Approval(LLMAction):
     def description(self) -> str:
         return '''Tutorial showing how to use a fallback with an action'''
 
-    def __init__(self, synopsis: dachi.Shared, approval: dachi.Shared):
+    def __init__(self, synopsis: dachi.data.Shared, approval: dachi.data.Shared):
         super().__init__(approval)
         self.synopsis = synopsis
 
@@ -64,9 +64,9 @@ class Approval(LLMAction):
     
     def act(self) -> TaskStatus:
         
-        message = dachi.TextMessage('system', self.prompt)
+        message = dachi.Msg(role='system', content=self.prompt)
         
-        self.response.set(self._model(message).val)
+        self.response.set(self._model(message)[1])
         if self.response.get().lower() == 'accept':
             return dachi.act.TaskStatus.SUCCESS
         return dachi.act.TaskStatus.FAILURE
@@ -74,7 +74,7 @@ class Approval(LLMAction):
 
 class ImproveSynopsis(LLMAction):
 
-    def __init__(self, original: dachi.Shared, revised: dachi.Shared):
+    def __init__(self, original: dachi.data.Shared, revised: dachi.data.Shared):
         super().__init__(revised)
         self.original = original
 
@@ -95,9 +95,9 @@ class ImproveSynopsis(LLMAction):
 
     def act(self) -> TaskStatus:
         
-        message = dachi.TextMessage('system', self.prompt)
+        message = dachi.Msg(role='system', content=self.prompt)
         
-        self.response.set(self._model(message).val)
+        self.response.set(self._model(message)[1])
         return dachi.act.TaskStatus.SUCCESS
 
 
@@ -106,11 +106,11 @@ class Tutorial3(AgentTutorial):
 
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
-        self.synopsis = dachi.Shared()
-        self.approval = dachi.Shared()
-        self.revision = dachi.Shared()
+        self.synopsis = dachi.data.Shared()
+        self.approval = dachi.data.Shared()
+        self.revision = dachi.data.Shared()
 
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog()
         self._task = dachi.act.Fallback([
             dachi.act.Sequence([
                 ProposeSynopsis(self.synopsis),
@@ -120,12 +120,8 @@ class Tutorial3(AgentTutorial):
         ])
 
     def clear(self):
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog()
 
-    def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
-        for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
 
     def tick(self) -> typing.Optional[str]:
         
@@ -137,7 +133,10 @@ class Tutorial3(AgentTutorial):
                 f"Revision: {self.revision.get()}"
             )
             self._callback(response)
-            self._dialog.assistant(response)
+            self._dialog.insert(
+                dachi.Msg(role='assistant', content=response), inplace=True
+            )
+
     
         if status.is_done:
             self._task.reset()
@@ -147,5 +146,5 @@ class Tutorial3(AgentTutorial):
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

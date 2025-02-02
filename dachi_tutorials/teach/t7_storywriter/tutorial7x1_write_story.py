@@ -3,6 +3,7 @@ import dachi
 import typing
 import dachi.adapt.openai
 
+from ..base import OpenAILLM
 
 import pydantic
 
@@ -32,14 +33,16 @@ class Tutorial1(ChatTutorial):
     
     def __init__(self):
 
-        self.model = dachi.adapt.openai.OpenAIChatModel('gpt-4o-mini')
-        self._messages = []
+        self.model = OpenAILLM(
+            resp_procs=dachi.adapt.openai.OpenAITextProc()
+        )
+        self._dialog = dachi.ListDialog()
         self.role = "You are a storywriter who writes original fictional stories."
     
     def clear(self):
-        self._messages = []
+        self._dialog = dachi.ListDialog()
 
-    @dachi.signaturefunc(engine='model')
+    @dachi.ai.signaturemethod(engine='model')
     def describe_theme(self, user_text) -> str:
         """
         Role: {role}
@@ -56,7 +59,7 @@ class Tutorial1(ChatTutorial):
         """
         return {'role': self.role}
 
-    @dachi.signaturefunc(engine='model')
+    @dachi.ai.signaturemethod(engine='model')
     def describe_setting(self, theme) -> str:
         """
         Role: {role}
@@ -67,7 +70,7 @@ class Tutorial1(ChatTutorial):
         """
         return {'role': self.role}
 
-    @dachi.signaturefunc(engine='model')
+    @dachi.ai.signaturemethod(engine='model')
     def describe_characters(self, setting, theme) -> str:
         """
         Role: {role}
@@ -82,7 +85,7 @@ class Tutorial1(ChatTutorial):
         """
         return {'role': self.role}
     
-    @dachi.signaturefunc(engine='model')
+    @dachi.ai.signaturemethod(engine='model')
     def create_synopsis(self, characters, setting, theme, user_text) -> str:
         """
         Role: {role}
@@ -100,7 +103,7 @@ class Tutorial1(ChatTutorial):
         """
         return {'role': self.role}
 
-    @dachi.signaturefunc(engine='model')
+    @dachi.ai.signaturemethod(engine='model')
     def create_outline(self, synopsis, characters, setting, theme, target_length: int) -> str:
         """
         Role: {role}
@@ -117,7 +120,7 @@ class Tutorial1(ChatTutorial):
         """
         return {'role': self.role}
 
-    @dachi.signaturefunc(engine='model')
+    @dachi.ai.signaturemethod(engine='model')
     def story_ended(
         self, cur_section
     ) -> str:
@@ -130,7 +133,7 @@ class Tutorial1(ChatTutorial):
         """
         pass
 
-    @dachi.signaturefunc(engine='model')
+    @dachi.ai.signaturemethod(engine='model')
     def write_story(
         self, cur_story, outline,  synopsis, characters, 
         setting, theme
@@ -163,8 +166,11 @@ class Tutorial1(ChatTutorial):
         pass
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
-        
-        self._messages.append(dachi.TextMessage('user', user_message))
+
+        msg = dachi.Msg(role='user', content=user_message)
+        self._dialog.insert(
+            msg, inplace=True
+        )
 
         theme = self.describe_theme(user_message)
         yield f'Theme: {theme}\n\n'
@@ -186,21 +192,22 @@ class Tutorial1(ChatTutorial):
             )
             story = story + cur_section + '\n\n'
             story_ended = self.story_ended(cur_section)
-            print(story_ended)
             story_ended = str2bool(story_ended)
-            print(story_ended)
             i += 1
             if i >= 10:
                 story += '\n DID NOT COMPLETE'
                 break
 
             yield cur_section
-        self._messages.append(dachi.TextMessage('assistant', story))
-    
+        assistant = dachi.Msg(role='assistant', content=story)
+        self._dialog.insert(
+            assistant, inplace=True
+        )
+
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
-        for message in self._messages:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+        for message in self._dialog:
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']
 
 
 def str2bool(v):

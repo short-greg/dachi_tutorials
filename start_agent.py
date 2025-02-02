@@ -4,6 +4,7 @@ import streamlit as st
 import dotenv
 import os
 
+
 from dachi_tutorials.teach.t5act import (
     tutorial5x0_dummy,
     tutorial5x1_action,
@@ -16,10 +17,10 @@ from dachi_tutorials.teach.t6act_func import (
     tutorial6x3_action_fallback,
     tutorial6x4_action_repeat
 )
-from streamlit_autorefresh import st_autorefresh
-from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
-from streamlit_autorefresh import st_autorefresh
 
+from streamlit_autorefresh import st_autorefresh
+# from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
+from streamlit_autorefresh import st_autorefresh
 
 dotenv.load_dotenv()
 st.title('AI Agent')
@@ -36,8 +37,17 @@ tutorial_map = {
     'Tutorial 6-4': tutorial6x4_action_repeat.Tutorial4,
 }
 
+
 if 'updated' not in st.session_state:
     st.session_state.updated = False
+
+def write_assistant_message(message):
+
+    st.session_state.updated = True
+
+
+# if 'updated' not in st.session_state:
+#     st.session_state.updated = False
 
 if 'update_trigger' not in st.session_state:
     st.session_state.update_trigger = 0
@@ -59,6 +69,7 @@ def change_tutorial():
         st.session_state.tutorial = tutorial_map[st.session_state.current_tutorial](update_messages)
     print(f'Updated tutorial to {st.session_state.current_tutorial}')
 
+
 count = st_autorefresh(interval=1000, limit=100, key="fizzbuzzcounter")
 
 option = st.selectbox(
@@ -70,22 +81,18 @@ if 'tutorial' not in st.session_state:
 
     st.session_state.tutorial = tutorial5x0_dummy.Tutorial0(update_messages)
 
+st.text(st.session_state.tutorial.description)
+
 st.session_state.update_messages = update_messages
 
 # Start/Stop button logic
 tutorial = st.session_state.tutorial
 if st.button('Start' if not tutorial.running else 'Stop'):
     if not tutorial.running:
-        ctx = get_script_run_ctx()
         tutorial.start()
     else:
         tutorial.stop()
 
-# Display the messages in the UI
-# st.write("Messages from agent:")
-# if 'messages' in st.session_state:
-#     for message in st.session_state.messages:
-#         st.write(message)
 
 
 for role, text in st.session_state.tutorial.messages(lambda role, m: role != 'system'):

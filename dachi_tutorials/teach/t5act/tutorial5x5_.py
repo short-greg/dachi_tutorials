@@ -9,7 +9,7 @@ from .utils import LLMAction
 
 class ProposeSynopsis(LLMAction):
 
-    def __init__(self, synopsis: dachi.Shared):
+    def __init__(self, synopsis: dachi.data.Shared):
         super().__init__(synopsis)
 
     @property
@@ -32,13 +32,13 @@ class ProposeSynopsis(LLMAction):
         
         message = dachi.TextMessage('system', self.prompt)
         
-        self.response.set(self._model(message).val)
+        self.response.set(self._model(message)[1])
         return dachi.act.TaskStatus.SUCCESS
 
 
 class Choose(LLMAction):
 
-    def __init__(self, evaluation: dachi.Shared, synopsis1: dachi.Shared, synopsis2: dachi.Shared):
+    def __init__(self, evaluation: dachi.data.Shared, synopsis1: dachi.data.Shared, synopsis2: dachi.data.Shared):
         super().__init__(evaluation)
         self.synopsis2 = synopsis2
         self.synopsis1 = synopsis1
@@ -60,7 +60,7 @@ class Choose(LLMAction):
         
         message = dachi.TextMessage('system', self.prompt)
         
-        self.response.set(self._model(message).val)
+        self.response.set(self._model(message)[1])
         return dachi.act.TaskStatus.SUCCESS
 
 
@@ -69,11 +69,11 @@ class Tutorial5(AgentTutorial):
     '''
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
-        self.synopsis1 = dachi.Shared()
-        self.synopsis2 = dachi.Shared()
-        self.evaluation = dachi.Shared()
+        self.synopsis1 = dachi.data.Shared()
+        self.synopsis2 = dachi.data.Shared()
+        self.evaluation = dachi.data.Shared()
 
-        self._dialog = dachi.Dialog()
+        self._dialog = dachi.ListDialog()
         self._task = dachi.act.Until(
             dachi.act.Parallel([
                 ProposeSynopsis(self.synopsis),
@@ -83,12 +83,7 @@ class Tutorial5(AgentTutorial):
         )
 
     def clear(self):
-        self._dialog = dachi.Dialog()
-
-    def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
-        for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+        self._dialog = dachi.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
@@ -101,8 +96,10 @@ class Tutorial5(AgentTutorial):
                 f"Evaluation": {self.evaluation.get()}\n\n
             )
             self._callback(response)
-            self._dialog.assistant(response)
-    
+            self._dialog.insert(
+                dachi.Msg(role='assistant', content=response, inplace=True
+            )
+
         if status.is_done:
             self._task.reset()
             self.synopsis1.reset()
@@ -111,5 +108,5 @@ class Tutorial5(AgentTutorial):
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
-            if include is None or include(message['source'], message['text']):
-                yield message['source'], message['text']
+            if include is None or include(message['role'], message['content']):
+                yield message['role'], message['content']

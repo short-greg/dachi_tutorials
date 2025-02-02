@@ -74,7 +74,6 @@ class Tutorial5(ChatTutorial):
         self._messages.append(user_message)
 
         decision = self.decide_project(self._messages[-1])
-        print(decision)
         decision = decision['data']
         project = decision[0]
         role = decision[1]

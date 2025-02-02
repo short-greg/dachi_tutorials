@@ -36,7 +36,6 @@ class Tutorial4(ChatTutorial):
         {question}
         """
         movies = self.pick_movies(question)
-        print(movies)
         return {'movies': movies}
 
     def render_header(self):
