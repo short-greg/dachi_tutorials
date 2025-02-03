@@ -69,6 +69,7 @@ class Tutorial1(ChatTutorial):
         topic = dialog.render()
         
         response = asyncio.run(self.execute(topic))
+        response = f'Main Points: {response[0]}\n\n Summary: {response[1]}'
         yield response
         
         assistant = dachi.Msg(role='assistant', content=response)

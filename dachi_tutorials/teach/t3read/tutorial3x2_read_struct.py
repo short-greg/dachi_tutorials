@@ -42,10 +42,9 @@ class Tutorial2(ChatTutorial):
         # User Text
         {text}
 
-        Output with this format
+        Output the role as a Pydantic object described by this template
         {template}
         """
-
         return {'template': dachi.PydanticRead(out_cls=Role).template()}
 
     def render_header(self):

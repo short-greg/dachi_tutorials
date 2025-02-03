@@ -51,13 +51,13 @@ class Tutorial1(ChatTutorial):
         Here is a description of the UserPref
         {doc}
 
-        Here is the dialog
+        Here is the dialog up to this point
         {dialog}
 
         Here is the current state
         {pref}
 
-        Here is the template for the result as a JSON
+        Output a Pydantic object as a JSON according to this Pydantic template. Ensure the values you output are the correct type
         {TEMPLATE}
         """
         dialog = dachi.exclude_messages(self._dialog, 'system', 'role')
