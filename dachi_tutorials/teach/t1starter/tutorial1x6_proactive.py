@@ -21,7 +21,7 @@ class Tutorial6(ChatTutorial):
             msg_renderer=dachi.RenderField()
         )
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def make_decision(self, question) -> str:
         """
         You must recommend a movie to the user. 
@@ -36,7 +36,7 @@ class Tutorial6(ChatTutorial):
         """
         pass
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def recommendation(self, question) -> str:
         """You must recommend a movie to the user.
         

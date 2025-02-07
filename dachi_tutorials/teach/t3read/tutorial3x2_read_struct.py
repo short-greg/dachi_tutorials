@@ -34,7 +34,7 @@ class Tutorial2(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
         Decide on the user's role based on the text they provide
@@ -45,7 +45,7 @@ class Tutorial2(ChatTutorial):
         Output the role as a Pydantic object described by this template
         {template}
         """
-        return {'template': dachi.PydanticRead(out_cls=Role).template()}
+        return {'template': dachi.PydanticProc(out_cls=Role).template()}
 
     def render_header(self):
         pass

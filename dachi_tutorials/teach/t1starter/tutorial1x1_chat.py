@@ -45,7 +45,7 @@ class Tutorial1(ChatTutorial):
         #     messages,
         #     self.model_kwargs
         # )
-        assistant_msg, text = dachi.ai.llm_forward(
+        assistant_msg, text = dachi.llm_forward(
             self.client.chat.completions.create, messages=messages,
             _resp_proc=self.text_processor,
             **self.model_kwargs

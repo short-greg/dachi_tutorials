@@ -19,13 +19,13 @@ class Tutorial4(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def pick_movies(self, question) -> str:
         """List up several movies related to the user's question {question}
         """
         pass
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def recommendation(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else.
         

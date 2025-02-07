@@ -48,7 +48,7 @@ class Tutorial7(ChatTutorial):
             msg_renderer=dachi.RenderField()
         )
 
-    @dachi.ai.instructmethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.instructmethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def recommendation(self, question) -> str:
         """
         """

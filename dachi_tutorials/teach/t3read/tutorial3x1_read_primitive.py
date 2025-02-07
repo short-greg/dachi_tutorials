@@ -16,7 +16,7 @@ class Tutorial1(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def count_vowels(self, text) -> int:
         """Count the number of vowels in the text the user provides
 

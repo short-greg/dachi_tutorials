@@ -5,7 +5,8 @@ import dotenv
 import os
 
 from dachi_tutorials.teach.t1starter import (
-    tutorial1x0_dummy, tutorial1x1_chat,
+    tutorial1x0_dummy, 
+    tutorial1x1_chat,
     tutorial1x2_signature,
     tutorial1x3_signature_stream,
     tutorial1x4_signature2,
@@ -14,11 +15,11 @@ from dachi_tutorials.teach.t1starter import (
     tutorial1x7_use_string_for_model
 )
 
-#     tutorial1x6_proactive, tutorial1x7_use_string_for_model,
-#     tutorial1x8_use_string_for_model_with_claude,
-#     tutorial1x9_use_string_for_model_with_gemini,
-#     tutorial1x10_use_string_for_model_with_assistants,
-# )
+# #     tutorial1x6_proactive, tutorial1x7_use_string_for_model,
+# #     tutorial1x8_use_string_for_model_with_claude,
+# #     tutorial1x9_use_string_for_model_with_gemini,
+# #     tutorial1x10_use_string_for_model_with_assistants,
+# # )
 from dachi_tutorials.teach.t2instruct import (
     tutorial2x1_simple, 
     tutorial2x2_with_struct,
@@ -61,8 +62,8 @@ tutorial_map = {
     'Tutorial 1-5': tutorial1x5_with_history.Tutorial5,
     'Tutorial 1-6': tutorial1x6_proactive.Tutorial6,
     'Tutorial 1-7': tutorial1x7_use_string_for_model.Tutorial7,
-    # 'Tutorial 1-8': tutorial1x8_use_string_for_model_with_claude.Tutorial8,
-    # 'Tutorial 1-9': tutorial1x9_use_string_for_model_with_gemini.Tutorial9,
+    # # 'Tutorial 1-8': tutorial1x8_use_string_for_model_with_claude.Tutorial8,
+    # # 'Tutorial 1-9': tutorial1x9_use_string_for_model_with_gemini.Tutorial9,
     # 'Tutorial 1-10': tutorial1x10_use_string_for_model_with_assistants.Tutorial10,
     'Tutorial 2-1': tutorial2x1_simple.Tutorial1,
     'Tutorial 2-2': tutorial2x2_with_struct.Tutorial2,

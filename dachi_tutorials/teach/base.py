@@ -113,7 +113,7 @@ class AgentTutorial(ABC):
         pass
 
 
-class OpenAILLM(dachi.ai.LLM):
+class OpenAILLM(dachi.LLM):
 
     def __init__(self, model='gpt-4o-mini', resp_procs=[], kwargs: typing.Dict=None):
         kwargs = kwargs or {}

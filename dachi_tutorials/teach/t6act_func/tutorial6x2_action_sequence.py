@@ -17,7 +17,7 @@ class Tutorial2(AgentTutorial):
     '''A script creator demonstrating how to use a sequence
     with functions in a behavior tree.'''
 
-    @dachi.ai.signaturemethod(engine=model)
+    @dachi.signaturemethod(engine=model)
     def propose_synopsis(self) -> str:
         """
 
@@ -28,7 +28,7 @@ class Tutorial2(AgentTutorial):
         """
         pass
 
-    @dachi.ai.signaturemethod(engine=model)
+    @dachi.signaturemethod(engine=model)
     def self_critique(self, synopsis) -> str:
         """Role: Strict Screenwriter
         You must evaluate your screenplay synopsis strictly and whether
@@ -46,7 +46,7 @@ class Tutorial2(AgentTutorial):
         """
         pass
 
-    @dachi.ai.signaturemethod(engine=model)
+    @dachi.signaturemethod(engine=model)
     def approve_helper(self, critique: dachi.data.Shared) -> str:
         """Role: Strict Screenwriter
         Decide whether to reject or accept your synopsis based.

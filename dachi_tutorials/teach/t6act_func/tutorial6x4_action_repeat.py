@@ -17,7 +17,7 @@ class Tutorial4(AgentTutorial):
     '''A script creator demonstrating how to use repeat
     with functions in a behavior tree.'''
 
-    @dachi.ai.signaturemethod(engine=model)
+    @dachi.signaturemethod(engine=model)
     def propose_synopsis(self) -> str:
         """
 
@@ -28,7 +28,7 @@ class Tutorial4(AgentTutorial):
         """
         pass
 
-    @dachi.ai.signaturemethod(engine=model)
+    @dachi.signaturemethod(engine=model)
     def approve_helper(self, synopsis: dachi.data.Shared) -> str:
         """
         Role: Screenwriter critiquing his screenplay

@@ -29,9 +29,9 @@ class Tutorial3(ChatTutorial):
     def clear(self):
         self._dialog = dachi.ListDialog()
 
-    @dachi.ai.signaturemethod(
+    @dachi.signaturemethod(
         OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()),
-        dachi.read.CSVRead(indexed=False, delim=',', cols=Role)
+        dachi.read.CSVProc(indexed=False, delim=',', cols=Role)
     )
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
@@ -44,7 +44,7 @@ class Tutorial3(ChatTutorial):
         {text}
         """
         # TODO: FINALIZE HOW CSV READ WORKS.. PERHAPS MAKE NAME OPTIONAL
-        return {'template': dachi.read.CSVRead(indexed=False, delim=',', cols=Role).template()}
+        return {'template': dachi.read.CSVProc(indexed=False, delim=',', cols=Role).template()}
 
     def render_header(self):
         pass

@@ -34,9 +34,9 @@ class Tutorial7(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.ai.signaturemethod(
+    @dachi.signaturemethod(
         OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()),
-        reader=dachi.read.KVRead(key_descr=Role)
+        reader=dachi.read.KVProc(key_descr=Role)
     )
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 

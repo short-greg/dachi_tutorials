@@ -13,7 +13,7 @@ model = OpenAILLM(
 class Tutorial1(AgentTutorial):
     '''A script creator demonstrating how to use an action in a behavior tree.'''
 
-    @dachi.ai.signaturemethod(engine=model)
+    @dachi.signaturemethod(engine=model)
     def propose_synopsis(self) -> str:
         """
         Role: Creative Screenwriter

@@ -22,7 +22,7 @@ class Tutorial5(ChatTutorial):
     def clear(self):
         self._dialog = dachi.ListDialog()
 
-    @dachi.ai.signaturemethod('_model')
+    @dachi.signaturemethod('_model')
     def main_points(self, topic) -> str:
         """List up the main points for the topic
 
@@ -31,7 +31,7 @@ class Tutorial5(ChatTutorial):
         """
         pass
 
-    @dachi.ai.signaturemethod('_model')
+    @dachi.signaturemethod('_model')
     def keywords(self, topic) -> str:
         """List up keywords for the topic
 
@@ -43,7 +43,7 @@ class Tutorial5(ChatTutorial):
         """
         pass
 
-    @dachi.ai.signaturemethod('_model')
+    @dachi.signaturemethod('_model')
     def abstract(self, topic) -> str:
         """Write up an abstract on the topic
 

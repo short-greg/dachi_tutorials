@@ -53,7 +53,7 @@ class Tutorial4(ChatTutorial):
             msg_renderer=dachi.RenderField()
         )
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def evaluate_satisfaction(self, conversation) -> str:
         """
         Evaluate whether the user is satisfied with the movie recommendations you've given him 
@@ -68,7 +68,7 @@ class Tutorial4(ChatTutorial):
             'criteria': self._glossary.render()
         }
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def make_decision(self, conversation) -> str:
         """
         {instructions}
@@ -104,7 +104,7 @@ class Tutorial4(ChatTutorial):
             'instructions': instruction
         }
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def recommendation(self, conversation) -> str:
         """
         {role}

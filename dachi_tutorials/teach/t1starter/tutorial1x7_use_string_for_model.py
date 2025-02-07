@@ -22,7 +22,7 @@ class Tutorial7(ChatTutorial):
             msg_renderer=dachi.RenderField()
         )
 
-    @dachi.ai.signaturemethod(engine='_model')
+    @dachi.signaturemethod(engine='_model')
     def make_decision(self, question) -> str:
         """
         You must recommend a movie to the user. 
@@ -37,7 +37,7 @@ class Tutorial7(ChatTutorial):
         """
         pass
 
-    @dachi.ai.signaturemethod(engine='_model')
+    @dachi.signaturemethod(engine='_model')
     def recommendation(self, question) -> str:
         """You must recommend a movie to the user.
         

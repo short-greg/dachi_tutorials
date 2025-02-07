@@ -42,7 +42,7 @@ class Tutorial1(ChatTutorial):
         self._dialog = dachi.ListDialog()
 
     @dachi.act.taskfunc('pref')
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()), response_format={"type": "json_object"})
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()), response_format={"type": "json_object"})
     def update_pref(self) -> UserPref:
         """
         {role}

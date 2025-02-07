@@ -32,7 +32,7 @@ class Tutorial1(ChatTutorial):
             msg_renderer=dachi.RenderField()
         )
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def make_decision(self, question) -> str:
         """
         {instructions}
@@ -56,7 +56,7 @@ class Tutorial1(ChatTutorial):
             'instructions': instruction
         }
 
-    @dachi.ai.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def recommendation(self, question) -> str:
         """
         {role}

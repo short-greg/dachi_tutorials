@@ -17,7 +17,7 @@ class Tutorial3(AgentTutorial):
     '''A script creator demonstrating how to use a fallback
     with functions in a behavior tree.'''
 
-    @dachi.ai.signaturemethod(engine=model)
+    @dachi.signaturemethod(engine=model)
     def propose_synopsis(self) -> str:
         """
 
@@ -28,7 +28,7 @@ class Tutorial3(AgentTutorial):
         """
         pass
 
-    @dachi.ai.signaturemethod(engine=model)
+    @dachi.signaturemethod(engine=model)
     def improve_synopsis(self, original_synopsis) -> str:
         """
         Role: Creative Screenwriter
@@ -40,7 +40,7 @@ class Tutorial3(AgentTutorial):
         """
         pass
 
-    @dachi.ai.signaturemethod(engine=model)
+    @dachi.signaturemethod(engine=model)
     def approve_helper(self, critique: dachi.data.Shared) -> str:
         """Role: Strict Screenwriter
         Decide whether to reject or accept your synopsis based.

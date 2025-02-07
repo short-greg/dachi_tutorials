@@ -20,7 +20,7 @@ class Tutorial3(ChatTutorial):
     def clear(self):
         self._dialog = dachi.ListDialog()
 
-    @dachi.ai.signaturemethod(
+    @dachi.signaturemethod(
         OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
     def summarize(self, cur_summary, topic) -> str:
         """Summarize the topic that is shared. You will be sent the topic sentence by sentence
