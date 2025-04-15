@@ -2,10 +2,11 @@ from ..base import ChatTutorial
 import dachi
 import typing
 import dachi.asst.openai_asst
+from dachi.msg import Term
 from ..base import OpenAILLM
 
 
-class Role(dachi.inst.Description):
+class Role(dachi.msg.Description):
 
     descr: str
 
@@ -26,9 +27,9 @@ class Tutorial5(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.conv.ListDialog(
-            msg_renderer=dachi.conv.RenderMsgField()
+        self._dialog = dachi.msg.ListDialog(
         )
+        self._renderer = dachi.msg.FieldRenderer()
         self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
         self._role = Role(
             name="Movie Recommender",
@@ -39,22 +40,20 @@ class Tutorial5(ChatTutorial):
             going so you can suggest a movie that will be satisfying to the user.
             """
         )
-        self._glossary = dachi.conv.Glossary().add(
-            'Sastified', 'The user is satisfied with the recommendation',
+        self._glossary = dachi.msg.Glossary().add(
+            Term('Sastified', 'The user is satisfied with the recommendation'),
         ).add(
-            'Dissastified', 'The user is satisfied with the recommendation',
+            Term('Dissastified', 'The user is satisfied with the recommendation'),
         ).add(
-            'Neutral: ', 'The user is neither satisfied nor dissatisfied',
+            Term('Neutral: ', 'The user is neither satisfied nor dissatisfied'),
         ).add(
-            'Unknown: ', 'It is not known if the user is satisfied',
+            Term('Unknown: ', 'It is not known if the user is satisfied'),
         )
 
     def clear(self):
-        self._dialog = dachi.conv.ListDialog(
-            msg_renderer=dachi.conv.RenderMsgField()
-        )
+        self._dialog = dachi.msg.ListDialog()
 
-    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def evaluate_satisfaction(self, conversation) -> str:
         """
         Evaluate whether the user is satisfied with the movie recommendations you've given him 
@@ -70,9 +69,9 @@ class Tutorial5(ChatTutorial):
         }
 
     # Change this to be an "instructfunc"
-    @dachi.inst.instructmethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
+    @dachi.asst.instructmethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def make_decision(self, conversation) -> str:
-        instruction = dachi.inst.Cue(
+        instruction = dachi.msg.Cue(
             text="""
 
             Decide on how to respond to the user based on your role: {role}. 
@@ -90,17 +89,17 @@ class Tutorial5(ChatTutorial):
             {conversation}
             """
         )
-        ref = dachi.inst.Ref(desc=self._role)
+        ref = dachi.msg.Ref(desc=self._role)
         satisfaction = self.evaluate_satisfaction(conversation)
-        instruction = dachi.inst.fill(
+        instruction = dachi.msg.fill(
             instruction, conversation=conversation, satisfaction=satisfaction, role=ref
         )
-        instruction = dachi.inst.cat(
+        instruction = dachi.msg.cat(
             [self._role, instruction], '\n\n'
         )
         return instruction
 
-    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_stream=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_stream=True)
     def recommendation(self, conversation) -> str:
         """
         {role}
@@ -121,23 +120,22 @@ class Tutorial5(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        self._dialog.insert(
-            dachi.conv.Msg(role='user', content=user_message), inplace=True
+        self._dialog.append(
+            dachi.msg.Msg(role='user', content=user_message)
         )
         res = ''
-        dialog = dachi.conv.exclude_messages(
+        dialog = dachi.msg.exclude_messages(
             self._dialog, 'system'
         )
         for c in self.recommendation(
-            dialog.render()
+            self._renderer(dialog)
         ):
             if c is not None:
                 yield c
                 res += c
       
-        self._dialog.insert(
-            dachi.conv.Msg(role='assistant', content=res),
-            inplace=True
+        self._dialog.append(
+            dachi.msg.Msg(role='assistant', content=res)
         )
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
