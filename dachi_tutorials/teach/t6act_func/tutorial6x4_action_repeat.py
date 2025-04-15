@@ -8,7 +8,7 @@ from ..base import OpenAILLM
 
 
 model = OpenAILLM(
-    resp_procs=dachi.adapt.openai.OpenAITextProc(),
+    procs=dachi.adapt.openai.OpenAITextConv(),
     kwargs={'temperature': 1.0}
 )
 
@@ -17,7 +17,7 @@ class Tutorial4(AgentTutorial):
     '''A script creator demonstrating how to use repeat
     with functions in a behavior tree.'''
 
-    @dachi.signaturemethod(engine=model)
+    @dachi.inst.signaturemethod(engine=model)
     def propose_synopsis(self) -> str:
         """
 
@@ -28,8 +28,8 @@ class Tutorial4(AgentTutorial):
         """
         pass
 
-    @dachi.signaturemethod(engine=model)
-    def approve_helper(self, synopsis: dachi.data.Shared) -> str:
+    @dachi.inst.signaturemethod(engine=model)
+    def approve_helper(self, synopsis: dachi.act.Shared) -> str:
         """
         Role: Screenwriter critiquing his screenplay
 
@@ -45,7 +45,7 @@ class Tutorial4(AgentTutorial):
         """
         pass
 
-    def approve(self, synopsis: dachi.data.Shared) -> bool:
+    def approve(self, synopsis: dachi.act.Shared) -> bool:
         result = self.approve_helper(synopsis)
         if result == 'accept':
             return True
@@ -54,14 +54,14 @@ class Tutorial4(AgentTutorial):
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
 
-        self.synopsis = dachi.data.Shared()
-        self.approval = dachi.data.Shared()
-        self._ctx = dachi.data.ContextStorage()
+        self.synopsis = dachi.act.Shared()
+        self.approval = dachi.act.Shared()
+        self._ctx = dachi.act.ContextStorage()
         self._timer = dachi.act.RandomTimer(0.5, 1.5)
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
@@ -86,7 +86,7 @@ class Tutorial4(AgentTutorial):
             )
             self._callback(response)
             self._dialog.insert(
-                dachi.Msg(role='assistant', content=response), inplace=True
+                dachi.conv.Msg(role='assistant', content=response), inplace=True
             )
     
         if status.is_done:

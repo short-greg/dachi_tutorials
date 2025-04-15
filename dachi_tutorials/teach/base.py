@@ -1,7 +1,6 @@
 import dachi
 import typing
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 import streamlit as st
 import threading
 import time
@@ -113,50 +112,58 @@ class AgentTutorial(ABC):
         pass
 
 
-class OpenAILLM(dachi.LLM):
+class OpenAILLM(
+    dachi.asst.LLM
+):
 
-    def __init__(self, model='gpt-4o-mini', resp_procs=[], kwargs: typing.Dict=None):
+    def __init__(
+        self, model='gpt-4o-mini', 
+        procs=[], kwargs: typing.Dict=None
+    ):
+        
         kwargs = kwargs or {}
         kwargs['model'] = model
         super().__init__(
-            self._forward, self._aforward, 
-            self._stream, self._astream,
-            resp_procs, 
-            kwargs
+            procs=procs,
+            kwargs=kwargs
         )
     
-    def _forward(self, messages: typing.List[typing.Dict], **kwargs):
+    def forward(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.Client()
-        res = client.chat.completions.create(
+        return dachi.asst.llm_forward(
+            client.chat.completions.create, 
             messages=messages,
-            stream=False,
-            **kwargs
-        )
-        return res
-
-    async def _aforward(self, messages: typing.List[typing.Dict], **kwargs):
-        client = openai.AsyncClient()
-        return await client.chat.completions.create(
-            messages=messages,
-            stream=False,
-            **kwargs
+            _proc=self.procs,
+            **{**self._kwargs, **kwargs}
         )
 
-    def _stream(self, messages: typing.List[typing.Dict], **kwargs):
-        client = openai.Client()
-        for chunk in client.chat.completions.create(
-            messages=messages,
-            stream=True,
-            **kwargs
-        ):
-            yield chunk
-
-    async def _astream(self, messages: typing.List[typing.Dict], **kwargs):
+    async def aforward(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.AsyncClient()
-        async for chunk in await client.chat.completions.create(
+        return await dachi.asst.llm_aforward(
+            client.chat.completions.create, 
             messages=messages,
-            stream=True,
-            **kwargs
-        ):
-            yield chunk
+            _proc=self.procs,
+            **{**self._kwargs, **kwargs}
+        )
 
+    def stream(self, messages: typing.List[typing.Dict], **kwargs):
+        client = openai.Client()
+        for msg in dachi.asst.llm_stream(
+            client.chat.completions.create, 
+            messages=messages,
+            _proc=self.procs,
+            stream=True,
+            **{**self._kwargs, **kwargs}
+        ):
+            yield msg
+
+    async def astream(self, messages: typing.List[typing.Dict], **kwargs):
+        client = openai.AsyncClient()
+        async for msg in await dachi.asst.llm_astream(
+            client.chat.completions.create, 
+            messages=messages,
+            _proc=self.procs,
+            stream=True,
+            **{**self._kwargs, **kwargs}
+        ):
+            yield msg

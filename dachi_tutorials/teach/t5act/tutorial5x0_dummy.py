@@ -2,16 +2,13 @@ from dachi.act import TaskStatus
 from ..base import AgentTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 import random
 
 
 class DummyAction(dachi.act.Action):
 
-    def __init__(self):
-        super().__init__()
-
-        self.response = None
+    response: typing.Optional[typing.Any] = None
 
     def act(self) -> TaskStatus:
 
@@ -37,18 +34,11 @@ class Tutorial0(AgentTutorial):
         super().__init__(callback, interval)
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
         self._task = DummyAction()
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
-    
-    # def messages(
-    #     self, include: typing.Callable[[str, str], bool]=None
-    # ) -> typing.Iterator[typing.Tuple[str, str]]:
-    #     for message in self._dialog:
-    #         if include is None or include(message['role'], message['content']):
-    #             yield message['role'], message['content']
+        self._dialog = dachi.conv.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
@@ -56,7 +46,7 @@ class Tutorial0(AgentTutorial):
         if status.success:
             self._callback(self._task.response)
 
-            assistant = dachi.Msg(role='assistant', content=self._task.response)
+            assistant = dachi.conv.Msg(role='assistant', content=self._task.response)
             self._dialog.insert(
                 assistant, inplace=True
             )

@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 
 from ..base import OpenAILLM
 
@@ -14,11 +14,11 @@ class Tutorial1(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.ListDialog(
-            msg_renderer=dachi.RenderField()
+        self._dialog = dachi.conv.ListDialog(
+            msg_renderer=dachi.conv.RenderMsgField()
         )
-        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
-        self._role = dachi.Cue(
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
+        self._role = dachi.asst.Cue(
             text=
             """
             You must recommend a movie to the user. 
@@ -28,17 +28,17 @@ class Tutorial1(ChatTutorial):
         )
 
     def clear(self):
-        self._dialog = dachi.ListDialog(
-            msg_renderer=dachi.RenderField()
+        self._dialog = dachi.conv.ListDialog(
+            msg_renderer=dachi.conv.RenderMsgField()
         )
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def make_decision(self, question) -> str:
         """
         {instructions}
 
         """
-        instruction = dachi.Cue(
+        instruction = dachi.asst.Cue(
             text="""
             Decide on how to respond to the user. 
             Whether to ask a question, respond directly, probe deeper etc.
@@ -48,15 +48,15 @@ class Tutorial1(ChatTutorial):
             {question}
             """
         )
-        instruction = dachi.op.fill(instruction, question=question)
-        instruction = dachi.op.cat(
+        instruction = dachi.asst.fill(instruction, question=question)
+        instruction = dachi.asst.cat(
             [self._role, instruction], '\n\n'
         )
         return {
             'instructions': instruction
         }
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_stream=True)
     def recommendation(self, question) -> str:
         """
         {role}
@@ -75,14 +75,14 @@ class Tutorial1(ChatTutorial):
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
         self._dialog.insert(
-            dachi.Msg(role='user', content=user_message), inplace=True
+            dachi.conv.Msg(role='user', content=user_message), inplace=True
         )
         res = ''
 
-        dialog = dachi.exclude_messages(
+        dialog = dachi.conv.exclude_messages(
             self._dialog, 'system'
         )
-        for c in self.recommendation.stream(
+        for c in self.recommendation(
             dialog.render()
         ):
             if c is not None:
@@ -90,7 +90,7 @@ class Tutorial1(ChatTutorial):
                 res += c
         
         self._dialog.insert(
-            dachi.Msg(role='assistant', content=res),
+            dachi.conv.Msg(role='assistant', content=res),
             inplace=True
         )
     

@@ -43,12 +43,12 @@ class Tutorial5(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.signaturemethod(
+    @dachi.inst.signaturemethod(
         # 'model', 
-        # [dachi.KVProc(Project), dachi.KVProc(Role)]
-        OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()),
-        reader=dachi.MultiTextProc(outs=[
-            dachi.read.KVProc(key_descr=Project), dachi.read.KVProc(key_descr=Role)]
+        # [dachi.adapt.KVConv(Project), dachi.adapt.KVConv(Role)]
+        OpenAILLM(procs=dachi.asst.openai.OpenAITextConv()),
+        reader=dachi.adapt.MultiTextConv(outs=[
+            dachi.adapt.KVConv(key_descr=Project), dachi.adapt.KVConv(key_descr=Role)]
         )
     )
     def decide_project(self, message) -> typing.Tuple[Project, Role]:
@@ -60,8 +60,8 @@ class Tutorial5(ChatTutorial):
         Output as key values with this format
         {template}
         """
-        template = dachi.MultiTextProc(outs=[
-            dachi.read.KVProc(key_descr=Project), dachi.read.KVProc(key_descr=Role)]
+        template = dachi.adapt.MultiTextConv(outs=[
+            dachi.adapt.KVConv(key_descr=Project), dachi.adapt.KVConv(key_descr=Role)]
         ).template()
         return {'template': template}
 
@@ -70,7 +70,7 @@ class Tutorial5(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.Msg(role='user', content=user_message)
+        user_message = dachi.conv.Msg(role='user', content=user_message)
         self._messages.append(user_message)
 
         decision = self.decide_project(self._messages[-1])
@@ -81,7 +81,7 @@ class Tutorial5(ChatTutorial):
         role_str = f'Your role is {role['name']}, {role['description']}'
         response = f'{project_str}\n{role_str}'
         yield response
-        assistant = dachi.Msg(role='assistant', content=response)
+        assistant = dachi.conv.Msg(role='assistant', content=response)
         self._messages.append(assistant)    
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

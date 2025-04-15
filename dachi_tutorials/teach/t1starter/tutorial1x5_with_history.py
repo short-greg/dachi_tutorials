@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 from ..base import OpenAILLM
 
 
@@ -13,19 +13,19 @@ class Tutorial5(ChatTutorial):
 
     def __init__(self):
 
-        self._dialog = dachi.ListDialog()
-        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
+        self._dialog = dachi.msg.ListDialog()
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def pick_movies(self, question) -> str:
         """List up several movies related to the user's question {question}
         """
         pass
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def recommendation(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else.
         
@@ -42,26 +42,24 @@ class Tutorial5(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        cue: dachi.Cue = self.recommendation.i(user_message)
-        self._dialog.add(
-            role='system', content=cue.text,
-            _replace=True, ind=0, _inplace=True
+        cue: dachi.asst.Cue = self.recommendation.i(user_message)
+        self._dialog[0] = (
+            dachi.msg.Msg(role='system', content=cue.text)
         )
-        self._dialog.add(
-            role='user', content=user_message, _inplace=True
+        self._dialog.append(
+            dachi.msg.Msg(role='user', content=user_message)
         )
 
         res = ''
         # TODO: FIX ERROR with it passing a string
-        for msg, c in self._model.stream(self._dialog):
+        for msg in self._model.stream(self._dialog):
+            c = msg.m['content']
             if c is not None:
                 yield c
                 res += c
 
-        self._dialog.add(
-            role='assistant', 
-            content=res, 
-            _inplace=True
+        self._dialog.append(
+            msg
         )
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

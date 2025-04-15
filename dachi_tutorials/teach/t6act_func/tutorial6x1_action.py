@@ -6,14 +6,14 @@ import dachi.adapt.openai
 from ..base import OpenAILLM
 
 model = OpenAILLM(
-    resp_procs=dachi.adapt.openai.OpenAITextProc(),
+    procs=dachi.adapt.openai.OpenAITextConv(),
     kwargs={'temperature': 0.0}
 )
 
 class Tutorial1(AgentTutorial):
     '''A script creator demonstrating how to use an action in a behavior tree.'''
 
-    @dachi.signaturemethod(engine=model)
+    @dachi.inst.signaturemethod(engine=model)
     def propose_synopsis(self) -> str:
         """
         Role: Creative Screenwriter
@@ -27,11 +27,11 @@ class Tutorial1(AgentTutorial):
 
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
-        self._dialog = dachi.ListDialog()
-        self._response = dachi.data.Shared()
+        self._dialog = dachi.conv.ListDialog()
+        self._response = dachi.act.Shared()
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
@@ -41,7 +41,7 @@ class Tutorial1(AgentTutorial):
         if status.success:
             self._callback(self._response.get())
             self._dialog.insert(
-                dachi.Msg(role='assistant', content=self._response.get()), inplace=True
+                dachi.conv.Msg(role='assistant', content=self._response.get()), inplace=True
             )
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

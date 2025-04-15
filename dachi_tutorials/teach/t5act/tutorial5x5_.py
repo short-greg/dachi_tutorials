@@ -2,15 +2,14 @@ from dachi.act import TaskStatus
 from ..base import AgentTutorial
 import dachi
 import typing
-import dachi.adapt.openai
 import random
 from .utils import LLMAction
 
 
 class ProposeSynopsis(LLMAction):
 
-    def __init__(self, synopsis: dachi.data.Shared):
-        super().__init__(synopsis)
+    def __init__(self, synopsis: dachi.act.Shared):
+        super().__init__(reponse=synopsis)
 
     @property
     def prompt(self) -> str:
@@ -38,7 +37,7 @@ class ProposeSynopsis(LLMAction):
 
 class Choose(LLMAction):
 
-    def __init__(self, evaluation: dachi.data.Shared, synopsis1: dachi.data.Shared, synopsis2: dachi.data.Shared):
+    def __init__(self, evaluation: dachi.act.Shared, synopsis1: dachi.act.Shared, synopsis2: dachi.act.Shared):
         super().__init__(evaluation)
         self.synopsis2 = synopsis2
         self.synopsis1 = synopsis1
@@ -69,11 +68,11 @@ class Tutorial5(AgentTutorial):
     '''
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
-        self.synopsis1 = dachi.data.Shared()
-        self.synopsis2 = dachi.data.Shared()
-        self.evaluation = dachi.data.Shared()
+        self.synopsis1 = dachi.act.Shared()
+        self.synopsis2 = dachi.act.Shared()
+        self.evaluation = dachi.act.Shared()
 
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
         self._task = dachi.act.Until(
             dachi.act.Parallel([
                 ProposeSynopsis(self.synopsis),
@@ -83,7 +82,7 @@ class Tutorial5(AgentTutorial):
         )
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
@@ -97,7 +96,7 @@ class Tutorial5(AgentTutorial):
             )
             self._callback(response)
             self._dialog.insert(
-                dachi.Msg(role='assistant', content=response, inplace=True
+                dachi.conv.Msg(role='assistant', content=response, inplace=True
             )
 
         if status.is_done:

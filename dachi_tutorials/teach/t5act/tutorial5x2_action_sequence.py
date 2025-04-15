@@ -2,15 +2,14 @@ from dachi.act import TaskStatus
 from ..base import AgentTutorial
 import dachi
 import typing
-import dachi.adapt.openai
 import random
 from .utils import LLMAction
 
 
 class ProposeSynopsis(LLMAction):
 
-    def __init__(self, synopsis: dachi.data.Shared):
-        super().__init__(synopsis)
+    def __init__(self, synopsis: dachi.act.Shared):
+        super().__init__(response=synopsis)
 
     @property
     def prompt(self) -> str:
@@ -30,7 +29,7 @@ class ProposeSynopsis(LLMAction):
         if random.random() > 0.002:
             return dachi.act.TaskStatus.RUNNING
         
-        message = dachi.Msg(role='system', content=self.prompt)
+        message = dachi.conv.Msg(role='system', content=self.prompt)
         
         self.response.set(self._model(message)[1])
         return dachi.act.TaskStatus.SUCCESS
@@ -38,9 +37,10 @@ class ProposeSynopsis(LLMAction):
 
 class SelfCritique(LLMAction):
 
-    def __init__(self, synopsis: dachi.data.Shared, critique: dachi.data.Shared):
-        super().__init__(critique)
-        self.synopsis = synopsis
+    synopsis: dachi.act.Shared
+
+    def __init__(self, synopsis: dachi.act.Shared, critique: dachi.act.Shared):
+        super().__init__(response=critique, synopsis=synopsis)
 
     @property
     def prompt(self) -> str:
@@ -62,7 +62,7 @@ class SelfCritique(LLMAction):
 
     def act(self) -> TaskStatus:
         
-        message = dachi.Msg(role='system', content=self.prompt)
+        message = dachi.conv.Msg(role='system', content=self.prompt)
         
         self.response.set(self._model(message)[1])
         return dachi.act.TaskStatus.SUCCESS
@@ -70,9 +70,10 @@ class SelfCritique(LLMAction):
 
 class Approval(LLMAction):
 
-    def __init__(self, critique: dachi.data.Shared, approval: dachi.data.Shared):
-        super().__init__(approval)
-        self.critique = critique
+    critique: dachi.act.Shared
+
+    def __init__(self, critique: dachi.act.Shared, approval: dachi.act.Shared):
+        super().__init__(response=approval, critique=critique)
 
     @property
     def prompt(self) -> str:
@@ -92,7 +93,7 @@ class Approval(LLMAction):
     
     def act(self) -> TaskStatus:
         
-        message = dachi.Msg(role='system', content=self.prompt)
+        message = dachi.conv.Msg(role='system', content=self.prompt)
         
         self.response.set(self._model(message)[1])
         if self.response.get().lower() == 'accept':
@@ -106,19 +107,19 @@ class Tutorial2(AgentTutorial):
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
 
-        self.synopsis = dachi.data.Shared()
-        self.approval = dachi.data.Shared()
-        self.critique = dachi.data.Shared()
+        self.synopsis = dachi.act.Shared()
+        self.approval = dachi.act.Shared()
+        self.critique = dachi.act.Shared()
 
-        self._dialog = dachi.ListDialog()
-        self._task = dachi.act.Sequence([
+        self._dialog = dachi.conv.ListDialog()
+        self._task = dachi.act.Sequence(tasks=[
             ProposeSynopsis(self.synopsis),
             SelfCritique(self.synopsis, self.critique),
             Approval(self.critique, self.approval)
         ])
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
@@ -133,7 +134,7 @@ class Tutorial2(AgentTutorial):
             self._callback(response)
 
             self._dialog.insert(
-                dachi.Msg(role='assistant', content=response), inplace=True
+                dachi.conv.Msg(role='assistant', content=response), inplace=True
             )
         elif status.failure:
             response = (
@@ -143,7 +144,7 @@ class Tutorial2(AgentTutorial):
             )
             self._callback(response)
             self._dialog.insert(
-                dachi.Msg(role='assistant', content=response), inplace=True
+                dachi.conv.Msg(role='assistant', content=response), inplace=True
             )
     
         if status.is_done:

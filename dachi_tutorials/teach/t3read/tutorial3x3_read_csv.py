@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 from ..base import OpenAILLM
 
 import pydantic
@@ -24,14 +24,14 @@ class Tutorial3(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
-    @dachi.signaturemethod(
-        OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()),
-        dachi.read.CSVProc(indexed=False, delim=',', cols=Role)
+    @dachi.inst.signaturemethod(
+        OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()),
+        dachi.asst.CSVConv(indexed=False, delim=',', cols=Role)
     )
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
@@ -44,14 +44,14 @@ class Tutorial3(ChatTutorial):
         {text}
         """
         # TODO: FINALIZE HOW CSV READ WORKS.. PERHAPS MAKE NAME OPTIONAL
-        return {'template': dachi.read.CSVProc(indexed=False, delim=',', cols=Role).template()}
+        return {'template': dachi.asst.CSVConv(indexed=False, delim=',', cols=Role).template()}
 
     def render_header(self):
         pass
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.Msg(role='user', content=user_message)
+        user_message = dachi.conv.Msg(role='user', content=user_message)
         self._dialog.insert(user_message, inplace=True)
 
         roles = self.decide_role(self._dialog[-1])
@@ -59,7 +59,7 @@ class Tutorial3(ChatTutorial):
         #response = str(roles)
         yield response
         
-        assistant = dachi.Msg(role='assistant', content=response)
+        assistant = dachi.conv.Msg(role='assistant', content=response)
         self._dialog.insert(assistant, inplace=True)
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

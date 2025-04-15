@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 from ..base import OpenAILLM
 
 
@@ -11,17 +11,14 @@ class Tutorial6(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.ListDialog(
-            msg_renderer=dachi.RenderField()
-        )
-        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
+        self._renderer = dachi.msg.FieldRenderer('content')
+        self._dialog = dachi.msg.ListDialog()
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
 
     def clear(self):
-        self._dialog = dachi.ListDialog(
-            msg_renderer=dachi.RenderField()
-        )
+        self._dialog = dachi.msg.ListDialog()
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def make_decision(self, question) -> str:
         """
         You must recommend a movie to the user. 
@@ -36,7 +33,7 @@ class Tutorial6(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_stream=True)
     def recommendation(self, question) -> str:
         """You must recommend a movie to the user.
         
@@ -56,22 +53,22 @@ class Tutorial6(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        self._dialog.add(
-            role='user', content=user_message, _inplace=True
+        self._dialog.append(
+            dachi.msg.Msg(role='user', content=user_message)
         )
         res = ''
-        dialog = dachi.exclude_messages(
+        dialog = dachi.msg.exclude_messages(
             self._dialog, 'system'
         )
-        for p2 in self.recommendation.stream(
-            dialog.render()
+        for p2 in self.recommendation(
+            self._renderer(dialog)
         ):
             if p2 is not None:
                 yield p2
                 res += p2
       
-        self._dialog.add(
-            role='assistant', content=res, _inplace=True
+        self._dialog.append(
+            dachi.msg.Msg(role='assistant', content=res)
         )
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

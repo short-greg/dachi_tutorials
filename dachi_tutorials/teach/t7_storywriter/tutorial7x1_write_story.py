@@ -34,15 +34,15 @@ class Tutorial1(ChatTutorial):
     def __init__(self):
 
         self.model = OpenAILLM(
-            resp_procs=dachi.adapt.openai.OpenAITextProc()
+            procs=dachi.adapt.openai.OpenAITextConv()
         )
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
         self.role = "You are a storywriter who writes original fictional stories."
     
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
-    @dachi.signaturemethod(engine='model')
+    @dachi.inst.signaturemethod(engine='model')
     def describe_theme(self, user_text) -> str:
         """
         Role: {role}
@@ -59,7 +59,7 @@ class Tutorial1(ChatTutorial):
         """
         return {'role': self.role}
 
-    @dachi.signaturemethod(engine='model')
+    @dachi.inst.signaturemethod(engine='model')
     def describe_setting(self, theme) -> str:
         """
         Role: {role}
@@ -70,7 +70,7 @@ class Tutorial1(ChatTutorial):
         """
         return {'role': self.role}
 
-    @dachi.signaturemethod(engine='model')
+    @dachi.inst.signaturemethod(engine='model')
     def describe_characters(self, setting, theme) -> str:
         """
         Role: {role}
@@ -85,7 +85,7 @@ class Tutorial1(ChatTutorial):
         """
         return {'role': self.role}
     
-    @dachi.signaturemethod(engine='model')
+    @dachi.inst.signaturemethod(engine='model')
     def create_synopsis(self, characters, setting, theme, user_text) -> str:
         """
         Role: {role}
@@ -103,7 +103,7 @@ class Tutorial1(ChatTutorial):
         """
         return {'role': self.role}
 
-    @dachi.signaturemethod(engine='model')
+    @dachi.inst.signaturemethod(engine='model')
     def create_outline(self, synopsis, characters, setting, theme, target_length: int) -> str:
         """
         Role: {role}
@@ -120,7 +120,7 @@ class Tutorial1(ChatTutorial):
         """
         return {'role': self.role}
 
-    @dachi.signaturemethod(engine='model')
+    @dachi.inst.signaturemethod(engine='model')
     def story_ended(
         self, cur_section
     ) -> str:
@@ -133,7 +133,7 @@ class Tutorial1(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod(engine='model')
+    @dachi.inst.signaturemethod(engine='model')
     def write_story(
         self, cur_story, outline,  synopsis, characters, 
         setting, theme
@@ -167,7 +167,7 @@ class Tutorial1(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
 
-        msg = dachi.Msg(role='user', content=user_message)
+        msg = dachi.conv.Msg(role='user', content=user_message)
         self._dialog.insert(
             msg, inplace=True
         )
@@ -199,7 +199,7 @@ class Tutorial1(ChatTutorial):
                 break
 
             yield cur_section
-        assistant = dachi.Msg(role='assistant', content=story)
+        assistant = dachi.conv.Msg(role='assistant', content=story)
         self._dialog.insert(
             assistant, inplace=True
         )

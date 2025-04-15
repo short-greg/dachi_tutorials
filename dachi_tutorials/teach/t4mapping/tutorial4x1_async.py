@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 import asyncio
 
 from ..base import OpenAILLM
@@ -14,12 +14,12 @@ class Tutorial1(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_async=True)
     def summarize(self, topic) -> str:
         """Summarize the topic that the user presents in his messages
 
@@ -30,7 +30,7 @@ class Tutorial1(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_async=True)
     def list_main_points(self, topic) -> str:
         """List the main points of the topic that the user is requesting in his messages
 
@@ -49,21 +49,21 @@ class Tutorial1(ChatTutorial):
         tasks = []
         async with asyncio.TaskGroup() as tg:
             tasks.append(
-                tg.create_task(self.list_main_points.aforward(topic))
+                tg.create_task(self.list_main_points(topic))
             )
             tasks.append(
-                tg.create_task(self.summarize.aforward(topic))
+                tg.create_task(self.summarize(topic))
             )
         return tuple(task.result() for task in tasks)
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.Msg(role='user', content=user_message)
+        user_message = dachi.conv.Msg(role='user', content=user_message)
         self._dialog.insert(
             user_message, inplace=True
         )
 
-        dialog = dachi.exclude_messages(
+        dialog = dachi.conv.exclude_messages(
             self._dialog, 'system'
         )
         topic = dialog.render()
@@ -72,7 +72,7 @@ class Tutorial1(ChatTutorial):
         response = f'Main Points: {response[0]}\n\n Summary: {response[1]}'
         yield response
         
-        assistant = dachi.Msg(role='assistant', content=response)
+        assistant = dachi.conv.Msg(role='assistant', content=response)
         self._dialog.insert(
             assistant, inplace=True
         )

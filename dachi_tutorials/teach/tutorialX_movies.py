@@ -4,6 +4,7 @@ import typing
 from abc import ABC
 import pandas as pd
 import os
+import dachi.asst.openai_asst
 import opendatasets as od
 from .base import Dropdown
 import streamlit as st
@@ -27,15 +28,12 @@ class MoviesTutorial(ChatTutorial):
         self.dialog = dachi.Dialog()
 
         self.ai_model = OpenAILLM(
-            resp_procs=dachi.adapt.openai.OpenAITextProc(),
+            resp_procs=dachi.asst.openai_asst.OpenAITextConv(),
             temperature=0.0
         )
         self.dialog.system(
             "Respond to the user's questions about the data provided in the next message."
         )
-        #     dachi.adapt.openai.OpenAIChatModel('gpt-3.5-turbo'), 
-        #     [dachi.TextMessage('system', "Respond to the user's questions about the data provided in the next message.")]
-        # )
         df = pd.read_csv(
             'data/imdb-movies-dataset/imdb_movies.csv'
         )

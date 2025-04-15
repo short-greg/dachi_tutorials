@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 
 from ..base import OpenAILLM
 
@@ -16,13 +16,13 @@ class Tutorial5(ChatTutorial):
 
     def __init__(self):
 
-        self._dialog = dachi.ListDialog()
-        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
+        self._dialog = dachi.conv.ListDialog()
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
-    @dachi.signaturemethod('_model')
+    @dachi.inst.signaturemethod('_model', to_async=True)
     def main_points(self, topic) -> str:
         """List up the main points for the topic
 
@@ -31,7 +31,7 @@ class Tutorial5(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod('_model')
+    @dachi.inst.signaturemethod('_model', to_async=True)
     def keywords(self, topic) -> str:
         """List up keywords for the topic
 
@@ -43,7 +43,7 @@ class Tutorial5(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod('_model')
+    @dachi.inst.signaturemethod('_model', to_async=True)
     def abstract(self, topic) -> str:
         """Write up an abstract on the topic
 
@@ -58,25 +58,29 @@ class Tutorial5(ChatTutorial):
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
         split_message = user_message.split('.')
-        user_message = dachi.Msg(role='user', content=user_message)
+        user_message = dachi.conv.Msg(role='user', content=user_message)
         self._dialog.insert(
             user_message, inplace=True
         )
 
-        results = dachi.async_map(
+        results = dachi.proc.async_map(
             [self.main_points, self.keywords, self.abstract],
-            dachi.render(split_message)
+            dachi.utils.render(split_message)
         )
         summary = '\n\n'.join(results)
 
         yield summary
-        assistant = dachi.Msg(
-            role='assistant', content=summary)
+        assistant = dachi.conv.Msg(
+            role='assistant', 
+            content=summary
+        )
         self._dialog.insert(
             assistant, inplace=True
         )
     
-    def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
+    def messages(
+        self, include: typing.Callable[[str, str], bool]=None
+    ) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
             if include is None or include(message['role'], message['content']):
                 yield message['role'], message['content']

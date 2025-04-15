@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 
 from ..base import OpenAILLM
 
@@ -16,13 +16,13 @@ class Tutorial4(ChatTutorial):
 
     def __init__(self):
 
-        self._dialog = dachi.ListDialog()
-        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
+        self._dialog = dachi.conv.ListDialog()
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
-    @dachi.signaturemethod('_model')
+    @dachi.inst.signaturemethod('_model', to_async=True)
     def summarize(self, topic) -> str:
         """Summarize the topic that is shared.
 
@@ -31,7 +31,7 @@ class Tutorial4(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod('_model')
+    @dachi.inst.signaturemethod('_model')
     def summarize_summaries(self, cur_summary) -> str:
         """Summarize all of the summaries taht have been shared
 
@@ -46,23 +46,22 @@ class Tutorial4(ChatTutorial):
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
         split_message = user_message.split('.')
-        user_message = dachi.Msg(role='user', content=user_message)
+        user_message = dachi.conv.Msg(role='user', content=user_message)
         self._dialog.insert(
             user_message, inplace=True
         )
 
-        results = dachi.async_map(
+        results = dachi.proc.async_map(
             self.summarize,
-            dachi.P(dachi.Batched(split_message, size=2, drop_last=False))
+            dachi.proc.B(dachi.proc.Batched(split_message, size=2, drop_last=False))
         )
-
         summary = self.summarize_summaries(
-            dachi.render(results)
+            dachi.utils.render(results)
         )
         yield summary
         
         # yield cur_message        
-        assistant = dachi.Msg(role='assistant', content=summary)
+        assistant = dachi.conv.Msg(role='assistant', content=summary)
         self._dialog.insert(
             assistant, inplace=True
         )

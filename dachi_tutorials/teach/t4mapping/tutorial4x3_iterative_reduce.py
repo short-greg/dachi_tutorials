@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 
 from ..base import OpenAILLM
 
@@ -15,13 +15,13 @@ class Tutorial3(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
-    @dachi.signaturemethod(
-        OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.inst.signaturemethod(
+        OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def summarize(self, cur_summary, topic) -> str:
         """Summarize the topic that is shared. You will be sent the topic sentence by sentence
         so refine the summary based on the current topic. If there is no current
@@ -44,17 +44,17 @@ class Tutorial3(ChatTutorial):
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
         split_message = user_message.split('.')
-        user_message = dachi.Msg(role='user', content=user_message)
+        user_message = dachi.conv.Msg(role='user', content=user_message)
         self._dialog.insert(
             user_message, inplace=True
         )
 
-        summary = dachi.reduce(
-            self.summarize, dachi.P(split_message)
+        summary = dachi.proc.reduce(
+            self.summarize, dachi.proc.B(split_message)
         )
         yield summary
         
-        assistant = dachi.Msg(role='assistant', content=summary)
+        assistant = dachi.conv.Msg(role='assistant', content=summary)
         self._dialog.insert(
             assistant, inplace=True
         )

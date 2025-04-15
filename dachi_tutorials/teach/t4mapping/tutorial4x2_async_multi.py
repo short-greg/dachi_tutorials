@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 from ..base import OpenAILLM
 
 
@@ -14,12 +14,12 @@ class Tutorial2(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def summarize(self, topic) -> str:
         """Summarize the topic that the user presents in his messages
 
@@ -28,7 +28,7 @@ class Tutorial2(ChatTutorial):
         """
         pass
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_async=True)
     def list_main_points(self, topic) -> str:
         """List the main points of the topic that the user is requesting in his messages
 
@@ -42,23 +42,23 @@ class Tutorial2(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.Msg(role='user', content=user_message)
+        user_message = dachi.conv.Msg(role='user', content=user_message)
         self._dialog.insert(
             user_message, inplace=True
         )
 
-        topic = dachi.exclude_messages(
+        topic = dachi.conv.exclude_messages(
             self._dialog, 'system'
         ).render()
 
-        results = dachi.async_multi(
-            self.list_main_points.aforward(topic),
-            self.summarize.aforward(topic)
+        results = dachi.proc.async_multi(
+            self.list_main_points(topic),
+            self.summarize(topic)
         )
         message = '\n\n'.join(results)
         yield message
         
-        assistant = dachi.Msg(role='assistant', content=message)
+        assistant = dachi.conv.Msg(role='assistant', content=message)
         self._dialog.insert(
             assistant, inplace=True
         )

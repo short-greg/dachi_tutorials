@@ -1,7 +1,7 @@
 from ..base import AgentTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 from .utils import LLMAction
 
 
@@ -28,19 +28,19 @@ class Tutorial1(AgentTutorial):
         super().__init__(callback, interval)
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.ListDialog()
-        self._response = dachi.data.Shared()
-        self._task = ProposeSynopsis(self._response)
+        self._dialog = dachi.conv.ListDialog()
+        self._response = dachi.act.Shared()
+        self._task = ProposeSynopsis(response=self._response)
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
         status = self._task.tick()
         if status.success:
             self._callback(self._response.get())
-            assistant = dachi.Msg(
+            assistant = dachi.conv.Msg(
                 role='assistant', 
                 content=self._response.get()
             )

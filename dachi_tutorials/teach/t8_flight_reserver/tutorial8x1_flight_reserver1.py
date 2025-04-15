@@ -13,10 +13,18 @@ class UserPref(BaseModel):
 
     If the user has not filled it in then set it to None
     '''
-    destination: typing.Optional[str] = pydantic.Field(description="The customer's travel destination.", default=None)
-    package: typing.Optional[str] = pydantic.Field(description="The package the user will go with.", default=None)
-    start_date: typing.Optional[str] = pydantic.Field(description="The date the customer's stay will start.", default=None)
-    num_nights: typing.Optional[str] = pydantic.Field(description="The number of nights for the customer's stay.", default=None)
+    destination: typing.Optional[str] = pydantic.Field(
+        description="The customer's travel destination.", default=None
+    )
+    package: typing.Optional[str] = pydantic.Field(
+        description="The package the user will go with.", default=None
+    )
+    start_date: typing.Optional[str] = pydantic.Field(
+        description="The date the customer's stay will start.", default=None
+    )
+    num_nights: typing.Optional[str] = pydantic.Field(
+        description="The number of nights for the customer's stay.", default=None
+    )
 
 
 class Tutorial1(ChatTutorial):
@@ -24,25 +32,28 @@ class Tutorial1(ChatTutorial):
 
     def __init__(self):
 
-        self.model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
+        self.model = OpenAILLM(procs=dachi.adapt.openai.OpenAITextConv())
         self.role = (
             "You work for an airline agency that "
             "needs to help the customer book a package tour."
         )
-        self.buffer = dachi.data.Buffer()
+        self.buffer = dachi.act.Buffer()
         self.buffer_iter = self.buffer.it()
         self.waiting = False
-        self.context = dachi.data.ContextStorage()
-        self._dialog = dachi.ListDialog(
-            msg_renderer=dachi.RenderField()
+        self.context = dachi.act.ContextStorage()
+        self._dialog = dachi.conv.ListDialog(
+            msg_renderer=dachi.conv.RenderMsgField()
         )
-        self.pref = dachi.data.Shared(UserPref())
+        self.pref = dachi.act.Shared(UserPref())
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     @dachi.act.taskfunc('pref')
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()), response_format={"type": "json_object"})
+    @dachi.inst.signaturemethod(
+        OpenAILLM(procs=dachi.adapt.openai.OpenAITextConv()), 
+        response_format={"type": "json_object"}
+    )
     def update_pref(self) -> UserPref:
         """
         {role}
@@ -57,26 +68,27 @@ class Tutorial1(ChatTutorial):
         Here is the current state
         {pref}
 
-        Output a Pydantic object as a JSON according to this Pydantic template. Ensure the values you output are the correct type
+        Output a Pydantic object as a JSON according to this Pydantic template. 
+        Ensure the values you output are the correct type
         {TEMPLATE}
         """
-        dialog = dachi.exclude_messages(self._dialog, 'system', 'role')
+        dialog = dachi.conv.exclude_messages(self._dialog, 'system', 'role')
         return {
             'role': self.role,
             'doc': dachi.utils.doc(UserPref),
             'dialog': dialog.render(),
-            'pref': dachi.render(self.pref.data)
+            'pref': dachi.utils.render(self.pref.data)
         }
 
     @dachi.act.sequencefunc('context.destination')
     def select_destination(self) -> typing.Iterator[dachi.act.Task]:
 
         yield self.pref.data.destination is None
-        dialog = dachi.exclude_messages(self._dialog, 'system', 'role')
+        dialog = dachi.conv.exclude_messages(self._dialog, 'system', 'role')
 
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.Msg(
+            dachi.conv.Msg(
                 role='system', 
                 content=f"""
                 Role: {self.role}
@@ -96,12 +108,12 @@ class Tutorial1(ChatTutorial):
     ) -> typing.Iterator[dachi.act.Task]:
 
         yield self.pref.data.package is None
-        dialog = dachi.exclude_messages(
+        dialog = dachi.conv.exclude_messages(
             self._dialog, 'system', 'role'
         )
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.Msg(
+            dachi.conv.Msg(
                 role='system', 
                 content=f"""
                 Role: {self.role}
@@ -122,12 +134,12 @@ class Tutorial1(ChatTutorial):
 
         yield self.pref.data.num_nights is None
         yield self.pref.data.start_date is None
-        dialog = dachi.exclude_messages(
+        dialog = dachi.conv.exclude_messages(
             self._dialog, 'system', 'role'
         )
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.Msg(
+            dachi.conv.Msg(
                 role='system', 
                 content=f"""
                 Role: {self.role}
@@ -146,12 +158,12 @@ class Tutorial1(ChatTutorial):
         self
     ) -> typing.Iterator[dachi.act.Task]:
 
-        dialog = dachi.exclude_messages(
+        dialog = dachi.conv.exclude_messages(
             self._dialog, 'system', 'role'
         )
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.Msg(
+            dachi.conv.Msg(
                 role='system', 
                 content=f"""
                 Role: {self.role}
@@ -170,11 +182,11 @@ class Tutorial1(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.Msg(role='user', content=user_message)
+        user_message = dachi.conv.Msg(role='user', content=user_message)
         self._dialog.insert(
             user_message, inplace=True
         )
-        self.buffer = dachi.data.Buffer()
+        self.buffer = dachi.act.Buffer()
         self.buffer_iter = self.buffer.it()
 
         # TODO: Handle how to "wait for the user's response"
@@ -183,7 +195,6 @@ class Tutorial1(ChatTutorial):
         status = dachi.act.TaskStatus.READY
 
         text = ''
-
 
         while not status.is_done:
             status = dachi.act.sequence([
@@ -202,12 +213,14 @@ class Tutorial1(ChatTutorial):
         
         self.context.clear()
 
-        asst_msg = dachi.Msg(role='assistant', content=text)
+        asst_msg = dachi.conv.Msg(role='assistant', content=text)
         self._dialog.insert(
             asst_msg, inplace=True
         )
     
-    def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
+    def messages(
+        self, include: typing.Callable[[str, str], bool]=None
+    ) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
             if include is None or include(message['role'], message['content']):
                 yield message['role'], message['content']

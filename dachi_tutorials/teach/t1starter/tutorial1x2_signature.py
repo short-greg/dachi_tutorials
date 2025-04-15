@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 
 from ..base import OpenAILLM
 
@@ -16,7 +16,9 @@ class Tutorial2(ChatTutorial):
         self.model = 'gpt-4o-mini'
         self._messages = []
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.asst.signaturemethod(
+        OpenAILLM(procs=[dachi.asst.openai_asst.OpenAITextConv('content')]), out='content'
+    )
     def answer_question(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else 
         
@@ -33,13 +35,13 @@ class Tutorial2(ChatTutorial):
     def forward(self, user_message: str) -> typing.Iterator[str]:
 
         self._messages.append(
-            dachi.Msg(role='user', content=user_message)
+            dachi.msg.Msg(role='user', content=user_message)
         )
         response = self.answer_question(
             user_message
         )
         self._messages.append(
-            dachi.Msg(role='assistant', content=response)
+            dachi.msg.Msg(role='assistant', content=response)
         )
         yield response
 

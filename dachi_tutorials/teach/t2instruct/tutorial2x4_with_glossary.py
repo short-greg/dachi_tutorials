@@ -1,11 +1,11 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 from ..base import OpenAILLM
 
 
-class Role(dachi.op.Description):
+class Role(dachi.inst.Description):
 
     descr: str
 
@@ -25,10 +25,10 @@ class Tutorial4(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.ListDialog(
-            msg_renderer=dachi.RenderField()
+        self._dialog = dachi.conv.ListDialog(
+            msg_renderer=dachi.conv.RenderMsgField()
         )
-        self._model = OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc())
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
         self._role = Role(
             name="Movie Recommender",
             descr=
@@ -38,7 +38,7 @@ class Tutorial4(ChatTutorial):
             going so you can suggest a movie that will be satisfying to the user.
             """
         )
-        self._glossary = dachi.data.Glossary().add(
+        self._glossary = dachi.conv.Glossary().add(
             'Sastified', 'The user is satisfied with the recommendation',
         ).add(
             'Dissastified', 'The user is satisfied with the recommendation',
@@ -49,11 +49,11 @@ class Tutorial4(ChatTutorial):
         )
 
     def clear(self):
-        self._dialog = dachi.ListDialog(
-            msg_renderer=dachi.RenderField()
+        self._dialog = dachi.conv.ListDialog(
+            msg_renderer=dachi.conv.RenderMsgField()
         )
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def evaluate_satisfaction(self, conversation) -> str:
         """
         Evaluate whether the user is satisfied with the movie recommendations you've given him 
@@ -68,13 +68,13 @@ class Tutorial4(ChatTutorial):
             'criteria': self._glossary.render()
         }
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def make_decision(self, conversation) -> str:
         """
         {instructions}
 
         """
-        instruction = dachi.Cue(
+        instruction = dachi.inst.Cue(
             text="""
 
             Decide on how to respond to the user based on your role: {role}. 
@@ -92,19 +92,21 @@ class Tutorial4(ChatTutorial):
             {conversation}
             """
         )
-        ref = dachi.op.Ref(desc=self._role)
+        ref = dachi.inst.Ref(desc=self._role)
         satisfaction = self.evaluate_satisfaction(conversation)
-        instruction = dachi.op.fill(
+        instruction = dachi.inst.fill(
             instruction, conversation=conversation, satisfaction=satisfaction, role=ref
         )
-        instruction = dachi.op.cat(
+        instruction = dachi.inst.cat(
             [self._role, instruction], '\n\n'
         )
         return {
             'instructions': instruction
         }
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.inst.signaturemethod(
+        OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_stream=True
+    )
     def recommendation(self, conversation) -> str:
         """
         {role}
@@ -126,21 +128,22 @@ class Tutorial4(ChatTutorial):
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
         self._dialog.insert(
-            dachi.Msg(role='user', content=user_message), 
+            dachi.conv.Msg(role='user', content=user_message), 
             inplace=True
         )
         res = ''
-        dialog = dachi.exclude_messages(
+        dialog = dachi.conv.exclude_messages(
             self._dialog, 'system'
         )
-        for c in self.recommendation.stream(
+        for c in self.recommendation(
             dialog.render()
         ):
-            yield c
-            res += c
+            if c is not None:
+                yield c
+                res += c
       
         self._dialog.insert(
-            dachi.Msg(role='assistant', content=res),
+            dachi.conv.Msg(role='assistant', content=res),
             inplace=True
         )
     

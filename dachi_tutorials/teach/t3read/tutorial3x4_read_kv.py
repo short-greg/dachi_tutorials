@@ -30,9 +30,9 @@ class Tutorial4(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.signaturemethod(
-        OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()),
-        reader=dachi.read.KVProc(key_descr=Role)
+    @dachi.inst.signaturemethod(
+        OpenAILLM(procs=dachi.asst.openai.OpenAITextConv()),
+        reader=dachi.adapt.KVConv(key_descr=Role)
     )
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
@@ -45,20 +45,20 @@ class Tutorial4(ChatTutorial):
         {template}
         """
 
-        return {'template': dachi.read.KVProc(key_descr=Role).template()}
+        return {'template': dachi.adapt.KVConv(key_descr=Role).template()}
 
     def render_header(self):
         pass
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.Msg(role='user', content=user_message)
+        user_message = dachi.conv.Msg(role='user', content=user_message)
         self._messages.append(user_message)
 
         role = self.decide_role(self._messages[-1])
         response = f'Your role is {role['name']}, {role['description']}'
         yield response
-        assistant = dachi.Msg(role='assistant', content=response)
+        assistant = dachi.conv.Msg(role='assistant', content=response)
         self._messages.append(assistant)
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

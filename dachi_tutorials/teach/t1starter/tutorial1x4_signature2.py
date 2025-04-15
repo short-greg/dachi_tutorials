@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 from ..base import OpenAILLM
 
 
@@ -19,13 +19,13 @@ class Tutorial4(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv('content')))
     def pick_movies(self, question) -> str:
         """List up several movies related to the user's question {question}
         """
         pass
 
-    @dachi.signaturemethod(OpenAILLM(resp_procs=dachi.adapt.openai.OpenAITextProc()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv('content')), to_stream=True)
     def recommendation(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else.
         
@@ -43,15 +43,15 @@ class Tutorial4(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        self._messages.append(dachi.Msg(role='user', content=user_message))
+        self._messages.append(dachi.msg.Msg(role='user', content=user_message))
 
         res = ''
-        for c in self.recommendation.stream(self._messages[-1]):
+        for c in self.recommendation(self._messages[-1]):
             if c is not None:
                 yield c
                 res += c
 
-        self._messages.append(dachi.Msg(role='assistant', content=res))
+        self._messages.append(dachi.msg.Msg(role='assistant', content=res))
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._messages:

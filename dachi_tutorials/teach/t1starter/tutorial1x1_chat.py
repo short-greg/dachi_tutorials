@@ -2,7 +2,7 @@ from ..base import ChatTutorial
 import dachi
 import typing
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 import openai
 
 class Tutorial1(ChatTutorial):
@@ -11,12 +11,11 @@ class Tutorial1(ChatTutorial):
     """
     
     def __init__(self):
-
         self.model_kwargs = {
             'model': 'gpt-4o-mini'
         }
         self.client = openai.Client()
-        self.text_processor = dachi.adapt.openai.OpenAITextProc()
+        self.text_processor = dachi.asst.openai_asst.OpenAITextConv('content')
         self._messages = []
 
     def render_header(self):
@@ -26,7 +25,7 @@ class Tutorial1(ChatTutorial):
         self._messages = []
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
-        user_message = dachi.Msg(role='user', content=user_message)
+        user_message = dachi.msg.Msg(role='user', content=user_message)
         instruction = f"""
         Answer the user's question about movies. Don't talk about anything else
 
@@ -36,24 +35,20 @@ class Tutorial1(ChatTutorial):
         self._messages.append(user_message)
 
         messages = [
-            dachi.Msg(role='system', content=instruction),
+            dachi.msg.Msg(role='system', content=instruction),
             *[msg.to_input() for msg in self._messages]
         ]
-
-        # print(
-        #     self.client.chat.completions.create,
-        #     messages,
-        #     self.model_kwargs
-        # )
-        assistant_msg, text = dachi.llm_forward(
+        assistant_msg = dachi.asst.llm_forward(
             self.client.chat.completions.create, messages=messages,
-            _resp_proc=self.text_processor,
+            _proc=[self.text_processor],
             **self.model_kwargs
         )
         self._messages.append(assistant_msg)
-        yield text
+        yield assistant_msg['content']
     
-    def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
+    def messages(
+        self, include: typing.Callable[[str, str], bool]=None
+    ) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._messages:
             if include is None or include(message['role'], message['content']):
                 yield message['role'], message['content']

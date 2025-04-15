@@ -2,14 +2,14 @@ from dachi.act import TaskStatus
 from ..base import AgentTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 import random
 from ..base import OpenAILLM
 
 
 
 model = OpenAILLM(
-    resp_procs=dachi.adapt.openai.OpenAITextProc(),
+    procs=dachi.asst.openai_asst.OpenAITextConv(),
     kwargs={'temperature': 1.0}
 )
 
@@ -17,7 +17,7 @@ class Tutorial3(AgentTutorial):
     '''A script creator demonstrating how to use a fallback
     with functions in a behavior tree.'''
 
-    @dachi.signaturemethod(engine=model)
+    @dachi.inst.signaturemethod(engine=model)
     def propose_synopsis(self) -> str:
         """
 
@@ -28,7 +28,7 @@ class Tutorial3(AgentTutorial):
         """
         pass
 
-    @dachi.signaturemethod(engine=model)
+    @dachi.inst.signaturemethod(engine=model)
     def improve_synopsis(self, original_synopsis) -> str:
         """
         Role: Creative Screenwriter
@@ -40,8 +40,8 @@ class Tutorial3(AgentTutorial):
         """
         pass
 
-    @dachi.signaturemethod(engine=model)
-    def approve_helper(self, critique: dachi.data.Shared) -> str:
+    @dachi.inst.signaturemethod(engine=model)
+    def approve_helper(self, critique: dachi.act.Shared) -> str:
         """Role: Strict Screenwriter
         Decide whether to reject or accept your synopsis based.
         Think about how the studio will receive this script.
@@ -56,7 +56,7 @@ class Tutorial3(AgentTutorial):
         """
         pass
 
-    def approve(self, critique: dachi.data.Shared) -> bool:
+    def approve(self, critique: dachi.act.Shared) -> bool:
         result = self.approve_helper(critique)
         if result == 'accept':
             return True
@@ -65,15 +65,15 @@ class Tutorial3(AgentTutorial):
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
 
-        self.synopsis = dachi.data.Shared()
-        self.approval = dachi.data.Shared()
-        self.revision = dachi.data.Shared()
-        self._ctx = dachi.data.ContextStorage()
+        self.synopsis = dachi.act.Shared()
+        self.approval = dachi.act.Shared()
+        self.revision = dachi.act.Shared()
+        self._ctx = dachi.act.ContextStorage()
         self._timer = dachi.act.RandomTimer(0.5, 1.5)
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def clear(self):
-        self._dialog = dachi.ListDialog()
+        self._dialog = dachi.conv.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
 
@@ -98,7 +98,7 @@ class Tutorial3(AgentTutorial):
             )
             self._callback(response)
             self._dialog.insert(
-                dachi.Msg(role='assistant', content=response), inplace=True
+                dachi.conv.Msg(role='assistant', content=response), inplace=True
             )
 
     
