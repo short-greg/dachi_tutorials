@@ -14,12 +14,13 @@ class Tutorial1(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.conv.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
+        self._renderer = dachi.msg.FieldRenderer()
 
     def clear(self):
-        self._dialog = dachi.conv.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
 
-    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_async=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_async=True)
     def summarize(self, topic) -> str:
         """Summarize the topic that the user presents in his messages
 
@@ -30,7 +31,7 @@ class Tutorial1(ChatTutorial):
         """
         pass
 
-    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_async=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_async=True)
     def list_main_points(self, topic) -> str:
         """List the main points of the topic that the user is requesting in his messages
 
@@ -58,24 +59,20 @@ class Tutorial1(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.conv.Msg(role='user', content=user_message)
-        self._dialog.insert(
-            user_message, inplace=True
-        )
+        user_message = dachi.msg.Msg(role='user', content=user_message)
+        self._dialog.append(user_message)
 
-        dialog = dachi.conv.exclude_messages(
+        dialog = dachi.msg.exclude_messages(
             self._dialog, 'system'
         )
-        topic = dialog.render()
+        topic = self._renderer(dialog)
         
         response = asyncio.run(self.execute(topic))
         response = f'Main Points: {response[0]}\n\n Summary: {response[1]}'
         yield response
         
-        assistant = dachi.conv.Msg(role='assistant', content=response)
-        self._dialog.insert(
-            assistant, inplace=True
-        )
+        assistant = dachi.msg.Msg(role='assistant', content=response)
+        self._dialog.append(assistant)
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:

@@ -24,14 +24,14 @@ class Tutorial3(ChatTutorial):
     def __init__(self):
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.conv.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
 
     def clear(self):
-        self._dialog = dachi.conv.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
 
-    @dachi.inst.signaturemethod(
+    @dachi.asst.signaturemethod(
         OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()),
-        dachi.asst.CSVConv(indexed=False, delim=',', cols=Role)
+        dachi.asst.CSVRowParser(indexed=False, delim=',', cols=Role)
     )
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
@@ -51,16 +51,16 @@ class Tutorial3(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.conv.Msg(role='user', content=user_message)
-        self._dialog.insert(user_message, inplace=True)
+        user_message = dachi.msg.Msg(role='user', content=user_message)
+        self._dialog.append(user_message)
 
         roles = self.decide_role(self._dialog[-1])
         response = '\n'.join([f'{role["name"]}: {role["description"]}' for role in roles])
         #response = str(roles)
         yield response
         
-        assistant = dachi.conv.Msg(role='assistant', content=response)
-        self._dialog.insert(assistant, inplace=True)
+        assistant = dachi.msg.Msg(role='assistant', content=response)
+        self._dialog.append(assistant)
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:

@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
+import dachi.asst.openai_asst
 from ..base import OpenAILLM
 
 
@@ -43,7 +43,7 @@ class Tutorial5(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.inst.signaturemethod(
+    @dachi.asst.signaturemethod(
         # 'model', 
         # [dachi.adapt.KVConv(Project), dachi.adapt.KVConv(Role)]
         OpenAILLM(procs=dachi.asst.openai.OpenAITextConv()),
@@ -70,7 +70,7 @@ class Tutorial5(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.conv.Msg(role='user', content=user_message)
+        user_message = dachi.msg.Msg(role='user', content=user_message)
         self._messages.append(user_message)
 
         decision = self.decide_project(self._messages[-1])
@@ -81,7 +81,7 @@ class Tutorial5(ChatTutorial):
         role_str = f'Your role is {role['name']}, {role['description']}'
         response = f'{project_str}\n{role_str}'
         yield response
-        assistant = dachi.conv.Msg(role='assistant', content=response)
+        assistant = dachi.msg.Msg(role='assistant', content=response)
         self._messages.append(assistant)    
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

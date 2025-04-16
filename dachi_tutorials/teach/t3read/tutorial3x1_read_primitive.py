@@ -16,7 +16,7 @@ class Tutorial1(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.inst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
     def count_vowels(self, text) -> int:
         """Count the number of vowels in the text the user provides
 
@@ -32,7 +32,7 @@ class Tutorial1(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.conv.Msg(role='user', content=user_message)
+        user_message = dachi.msg.Msg(role='user', content=user_message)
         self._messages.append(user_message)
         # cur_message = self.recommendation(self._messages[-1])
 
@@ -40,7 +40,7 @@ class Tutorial1(ChatTutorial):
         response = f'Number of vowels: {n_vowels}'
         yield response
 
-        assistant = dachi.conv.Msg(role='assistant', content=response)
+        assistant = dachi.msg.Msg(role='assistant', content=response)
         self._messages.append(assistant)        
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

@@ -29,21 +29,21 @@ from dachi_tutorials.teach.t2instruct import (
     tutorial2x5_instructmethod, 
     # tutorial2x6_styling
 )
-# from dachi_tutorials.teach.t3read import (
-#     tutorial3x1_read_primitive, 
-#     tutorial3x2_read_struct,
-#     tutorial3x3_read_csv, 
-#     tutorial3x4_read_kv, 
-#     tutorial3x5_read_multi,
-#     tutorial3x7_template
-# )
-# from dachi_tutorials.teach.t4mapping import (
-#     tutorial4x1_async,
-#     tutorial4x2_async_multi,
-#     tutorial4x3_iterative_reduce,
-#     tutorial4x4_map_reduce,
-#     tutorial4x5_one_to_many
-# )
+from dachi_tutorials.teach.t3read import (
+    tutorial3x1_read_primitive, 
+    tutorial3x2_read_struct,
+    # tutorial3x3_read_csv, 
+    # tutorial3x4_read_kv, 
+    # tutorial3x5_read_multi,
+    # tutorial3x7_template
+)
+from dachi_tutorials.teach.t4mapping import (
+    tutorial4x1_async,
+    tutorial4x2_async_multi,
+    tutorial4x3_iterative_reduce,
+    tutorial4x4_map_reduce,
+    tutorial4x5_one_to_many
+)
 # from dachi_tutorials.teach.t7_storywriter import (
 #     tutorial7x1_write_story,
 # )
@@ -72,17 +72,17 @@ tutorial_map = {
     'Tutorial 2-4': tutorial2x4_with_glossary.Tutorial4,
     'Tutorial 2-5': tutorial2x5_instructmethod.Tutorial5,
     # 'Tutorial 2-6': tutorial2x6_styling.Tutorial6,
-    # 'Tutorial 3-1': tutorial3x1_read_primitive.Tutorial1,
-    # 'Tutorial 3-2': tutorial3x2_read_struct.Tutorial2,
+    'Tutorial 3-1': tutorial3x1_read_primitive.Tutorial1,
+    'Tutorial 3-2': tutorial3x2_read_struct.Tutorial2,
     # 'Tutorial 3-3': tutorial3x3_read_csv.Tutorial3,
     # 'Tutorial 3-4': tutorial3x4_read_kv.Tutorial4,
     # 'Tutorial 3-5': tutorial3x5_read_multi.Tutorial5,
     # 'Tutorial 3-7': tutorial3x7_template.Tutorial7,
-    # 'Tutorial 4-1': tutorial4x1_async.Tutorial1,
-    # 'Tutorial 4-2': tutorial4x2_async_multi.Tutorial2,
-    # 'Tutorial 4-3': tutorial4x3_iterative_reduce.Tutorial3,
-    # 'Tutorial 4-4': tutorial4x4_map_reduce.Tutorial4,
-    # 'Tutorial 4-5': tutorial4x5_one_to_many.Tutorial5,
+    'Tutorial 4-1': tutorial4x1_async.Tutorial1,
+    'Tutorial 4-2': tutorial4x2_async_multi.Tutorial2,
+    'Tutorial 4-3': tutorial4x3_iterative_reduce.Tutorial3,
+    'Tutorial 4-4': tutorial4x4_map_reduce.Tutorial4,
+    'Tutorial 4-5': tutorial4x5_one_to_many.Tutorial5,
     # 'Tutorial 7-1': tutorial7x1_write_story.Tutorial1,
     # 'Tutorial 8-1': tutorial8x1_flight_reserver1.Tutorial1,
     

@@ -31,7 +31,7 @@ class Tutorial4(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    @dachi.inst.signaturemethod(
+    @dachi.asst.signaturemethod(
         OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()),
         reader=dachi.asst.StructListRead(Role)
     )
