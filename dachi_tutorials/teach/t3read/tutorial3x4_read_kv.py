@@ -31,8 +31,8 @@ class Tutorial4(ChatTutorial):
         self._messages = []
 
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=dachi.asst.openai.OpenAITextConv()),
-        reader=dachi.adapt.KVConv(key_descr=Role)
+        OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()),
+        reader=dachi.asst.KVConv(key_descr=Role)
     )
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
@@ -45,7 +45,7 @@ class Tutorial4(ChatTutorial):
         {template}
         """
 
-        return {'template': dachi.adapt.KVConv(key_descr=Role).template()}
+        return {'template': dachi.asst.KVConv(key_descr=Role).template()}
 
     def render_header(self):
         pass

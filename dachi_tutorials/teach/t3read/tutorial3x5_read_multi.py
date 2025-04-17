@@ -46,9 +46,9 @@ class Tutorial5(ChatTutorial):
     @dachi.asst.signaturemethod(
         # 'model', 
         # [dachi.adapt.KVConv(Project), dachi.adapt.KVConv(Role)]
-        OpenAILLM(procs=dachi.asst.openai.OpenAITextConv()),
-        reader=dachi.adapt.MultiTextConv(outs=[
-            dachi.adapt.KVConv(key_descr=Project), dachi.adapt.KVConv(key_descr=Role)]
+        OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()),
+        reader=dachi.asst.MultiTextConv(outs=[
+            dachi.asst.KVConv(key_descr=Project), dachi.asst.KVConv(key_descr=Role)]
         )
     )
     def decide_project(self, message) -> typing.Tuple[Project, Role]:
@@ -60,8 +60,8 @@ class Tutorial5(ChatTutorial):
         Output as key values with this format
         {template}
         """
-        template = dachi.adapt.MultiTextConv(outs=[
-            dachi.adapt.KVConv(key_descr=Project), dachi.adapt.KVConv(key_descr=Role)]
+        template = dachi.asst.MultiTextConv(outs=[
+            dachi.asst.KVConv(key_descr=Project), dachi.asst.KVConv(key_descr=Role)]
         ).template()
         return {'template': template}
 

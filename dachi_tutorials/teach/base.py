@@ -148,6 +148,7 @@ class OpenAILLM(
 
     def stream(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.Client()
+        print(messages)
         for msg in dachi.asst.llm_stream(
             client.chat.completions.create, 
             messages=messages,

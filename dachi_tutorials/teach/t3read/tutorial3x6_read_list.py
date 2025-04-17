@@ -46,7 +46,7 @@ class Tutorial4(ChatTutorial):
         {template}
         """
 
-        return {'template': dachi.adapt.StructListRead(out_cls=Role).template()}
+        return {'template': dachi.asst.StructListRead(out_cls=Role).template()}
 
     def render_header(self):
         pass

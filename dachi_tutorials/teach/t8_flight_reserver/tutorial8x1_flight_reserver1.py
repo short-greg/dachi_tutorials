@@ -1,7 +1,6 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.adapt.openai
 from pydantic import BaseModel
 import pydantic
 from ..base import OpenAILLM
@@ -32,18 +31,17 @@ class Tutorial1(ChatTutorial):
 
     def __init__(self):
 
-        self.model = OpenAILLM(procs=dachi.adapt.openai.OpenAITextConv())
+        self.model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
         self.role = (
             "You work for an airline agency that "
             "needs to help the customer book a package tour."
         )
-        self.buffer = dachi.act.Buffer()
+        self.buffer = dachi.store.Buffer()
         self.buffer_iter = self.buffer.it()
         self.waiting = False
         self.context = dachi.store.ContextStorage()
-        self._dialog = dachi.msg.ListDialog(
-            msg_renderer=dachi.conv.RenderMsgField()
-        )
+        self._renderer = dachi.msg.FieldRenderer()
+        self._dialog = dachi.msg.ListDialog()
         self.pref = dachi.store.Shared(UserPref())
 
     def clear(self):
@@ -51,7 +49,7 @@ class Tutorial1(ChatTutorial):
 
     @dachi.act.taskfunc('pref')
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=dachi.adapt.openai.OpenAITextConv()), 
+        OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), 
         response_format={"type": "json_object"}
     )
     def update_pref(self) -> UserPref:
@@ -76,8 +74,8 @@ class Tutorial1(ChatTutorial):
         return {
             'role': self.role,
             'doc': dachi.utils.doc(UserPref),
-            'dialog': dialog.render(),
-            'pref': dachi.utils.render(self.pref.data)
+            'dialog': self._renderer(dialog),
+            'pref': dachi.msg.render(self.pref.data)
         }
 
     @dachi.act.sequencefunc('context.destination')
@@ -96,10 +94,10 @@ class Tutorial1(ChatTutorial):
                 Help the user decide on a travel destination for the tour. 
 
                 # Current Dialog
-                {dialog.render()}
+                {self._renderer(dialog)}
                 
                 """
-            ), self.context.stream_destination
+            ).to_list_input(), self.context.stream_destination, 'content'
         )
     
     @dachi.act.sequencefunc('context.package')
@@ -121,10 +119,10 @@ class Tutorial1(ChatTutorial):
                 Help the user decide on a package based on his destination.
 
                 # Current Dialog
-                {dialog.render()}
+                {self._renderer(dialog)}
                 
                 """
-            ), self.context.stream_package
+            ).to_list_input(), self.context.stream_package, 'content'
         )
 
     @dachi.act.sequencefunc('context.time')
@@ -148,9 +146,9 @@ class Tutorial1(ChatTutorial):
                 nights he will stay and the date he will stay.
 
                 # Current Dialog
-                {dialog.render()}
+                {self._renderer(dialog)}
                 """
-            ), self.context.stream_model
+            ).to_list_input(), self.context.stream_model, 'content'
         )
     
     @dachi.act.sequencefunc('context.dest')
@@ -172,9 +170,9 @@ class Tutorial1(ChatTutorial):
                 Answer any other questions he might have.
 
                 # Current Dialog
-                {dialog.render()}
+                {self._renderer(dialog)}
                 """
-            ), self.context.stream_disc
+            ).to_list_input(), self.context.stream_disc, 'content'
         )
 
     def render_header(self):
@@ -186,7 +184,7 @@ class Tutorial1(ChatTutorial):
         self._dialog.append(
             user_message
         )
-        self.buffer = dachi.act.Buffer()
+        self.buffer = dachi.store.Buffer()
         self.buffer_iter = self.buffer.it()
 
         # TODO: Handle how to "wait for the user's response"
