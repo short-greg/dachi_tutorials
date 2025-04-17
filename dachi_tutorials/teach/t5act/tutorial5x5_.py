@@ -8,7 +8,7 @@ from .utils import LLMAction
 
 class ProposeSynopsis(LLMAction):
 
-    def __init__(self, synopsis: dachi.act.Shared):
+    def __init__(self, synopsis: dachi.store.Shared):
         super().__init__(reponse=synopsis)
 
     @property
@@ -31,13 +31,13 @@ class ProposeSynopsis(LLMAction):
         
         message = dachi.TextMessage('system', self.prompt)
         
-        self.response.set(self._model(message)[1])
+        self.response.set(self._model(message.to_list_input())['content'])
         return dachi.act.TaskStatus.SUCCESS
 
 
 class Choose(LLMAction):
 
-    def __init__(self, evaluation: dachi.act.Shared, synopsis1: dachi.act.Shared, synopsis2: dachi.act.Shared):
+    def __init__(self, evaluation: dachi.store.Shared, synopsis1: dachi.store.Shared, synopsis2: dachi.store.Shared):
         super().__init__(evaluation)
         self.synopsis2 = synopsis2
         self.synopsis1 = synopsis1
@@ -59,7 +59,7 @@ class Choose(LLMAction):
         
         message = dachi.TextMessage('system', self.prompt)
         
-        self.response.set(self._model(message)[1])
+        self.response.set(self._model(message.to_list_input())['content'])
         return dachi.act.TaskStatus.SUCCESS
 
 
@@ -68,11 +68,11 @@ class Tutorial5(AgentTutorial):
     '''
     def __init__(self, callback, interval: float=1./60):
         super().__init__(callback, interval)
-        self.synopsis1 = dachi.act.Shared()
-        self.synopsis2 = dachi.act.Shared()
-        self.evaluation = dachi.act.Shared()
+        self.synopsis1 = dachi.store.Shared()
+        self.synopsis2 = dachi.store.Shared()
+        self.evaluation = dachi.store.Shared()
 
-        self._dialog = dachi.conv.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
         self._task = dachi.act.Until(
             dachi.act.Parallel([
                 ProposeSynopsis(self.synopsis),
@@ -82,7 +82,7 @@ class Tutorial5(AgentTutorial):
         )
 
     def clear(self):
-        self._dialog = dachi.conv.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
@@ -95,8 +95,8 @@ class Tutorial5(AgentTutorial):
                 f"Evaluation": {self.evaluation.get()}\n\n
             )
             self._callback(response)
-            self._dialog.insert(
-                dachi.conv.Msg(role='assistant', content=response, inplace=True
+            self._dialog.append(
+                dachi.msg.Msg(role='assistant', content=response)
             )
 
         if status.is_done:

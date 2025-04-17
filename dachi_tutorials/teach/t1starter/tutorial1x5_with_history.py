@@ -42,7 +42,7 @@ class Tutorial5(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        cue: dachi.asst.Cue = self.recommendation.i(user_message)
+        cue: dachi.msg.Cue = self.recommendation.i(user_message)
         self._dialog[0] = (
             dachi.msg.Msg(role='system', content=cue.text)
         )

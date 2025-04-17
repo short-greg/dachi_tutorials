@@ -40,17 +40,17 @@ class Tutorial1(ChatTutorial):
         self.buffer = dachi.act.Buffer()
         self.buffer_iter = self.buffer.it()
         self.waiting = False
-        self.context = dachi.act.ContextStorage()
-        self._dialog = dachi.conv.ListDialog(
+        self.context = dachi.store.ContextStorage()
+        self._dialog = dachi.msg.ListDialog(
             msg_renderer=dachi.conv.RenderMsgField()
         )
-        self.pref = dachi.act.Shared(UserPref())
+        self.pref = dachi.store.Shared(UserPref())
 
     def clear(self):
-        self._dialog = dachi.conv.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
 
     @dachi.act.taskfunc('pref')
-    @dachi.inst.signaturemethod(
+    @dachi.asst.signaturemethod(
         OpenAILLM(procs=dachi.adapt.openai.OpenAITextConv()), 
         response_format={"type": "json_object"}
     )
@@ -72,7 +72,7 @@ class Tutorial1(ChatTutorial):
         Ensure the values you output are the correct type
         {TEMPLATE}
         """
-        dialog = dachi.conv.exclude_messages(self._dialog, 'system', 'role')
+        dialog = dachi.msg.exclude_messages(self._dialog, 'system', 'role')
         return {
             'role': self.role,
             'doc': dachi.utils.doc(UserPref),
@@ -84,11 +84,11 @@ class Tutorial1(ChatTutorial):
     def select_destination(self) -> typing.Iterator[dachi.act.Task]:
 
         yield self.pref.data.destination is None
-        dialog = dachi.conv.exclude_messages(self._dialog, 'system', 'role')
+        dialog = dachi.msg.exclude_messages(self._dialog, 'system', 'role')
 
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.conv.Msg(
+            dachi.msg.Msg(
                 role='system', 
                 content=f"""
                 Role: {self.role}
@@ -108,12 +108,12 @@ class Tutorial1(ChatTutorial):
     ) -> typing.Iterator[dachi.act.Task]:
 
         yield self.pref.data.package is None
-        dialog = dachi.conv.exclude_messages(
+        dialog = dachi.msg.exclude_messages(
             self._dialog, 'system', 'role'
         )
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.conv.Msg(
+            dachi.msg.Msg(
                 role='system', 
                 content=f"""
                 Role: {self.role}
@@ -134,12 +134,12 @@ class Tutorial1(ChatTutorial):
 
         yield self.pref.data.num_nights is None
         yield self.pref.data.start_date is None
-        dialog = dachi.conv.exclude_messages(
+        dialog = dachi.msg.exclude_messages(
             self._dialog, 'system', 'role'
         )
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.conv.Msg(
+            dachi.msg.Msg(
                 role='system', 
                 content=f"""
                 Role: {self.role}
@@ -158,12 +158,12 @@ class Tutorial1(ChatTutorial):
         self
     ) -> typing.Iterator[dachi.act.Task]:
 
-        dialog = dachi.conv.exclude_messages(
+        dialog = dachi.msg.exclude_messages(
             self._dialog, 'system', 'role'
         )
         yield dachi.act.stream_model(
             self.buffer, self.model,
-            dachi.conv.Msg(
+            dachi.msg.Msg(
                 role='system', 
                 content=f"""
                 Role: {self.role}
@@ -182,9 +182,9 @@ class Tutorial1(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.conv.Msg(role='user', content=user_message)
-        self._dialog.insert(
-            user_message, inplace=True
+        user_message = dachi.msg.Msg(role='user', content=user_message)
+        self._dialog.append(
+            user_message
         )
         self.buffer = dachi.act.Buffer()
         self.buffer_iter = self.buffer.it()
@@ -213,9 +213,9 @@ class Tutorial1(ChatTutorial):
         
         self.context.clear()
 
-        asst_msg = dachi.conv.Msg(role='assistant', content=text)
-        self._dialog.insert(
-            asst_msg, inplace=True
+        asst_msg = dachi.msg.Msg(role='assistant', content=text)
+        self._dialog.append(
+            asst_msg
         )
     
     def messages(

@@ -39,7 +39,7 @@ class Tutorial3(ChatTutorial):
         )
 
     def clear(self):
-        self._dialog = dachi.conv.ListDialog(
+        self._dialog = dachi.msg.ListDialog(
             msg_renderer=dachi.conv.RenderMsgField()
         )
 
@@ -90,7 +90,7 @@ class Tutorial3(ChatTutorial):
         
         self._renderer = dachi.msg.FieldRenderer()
         self._dialog.append(
-            dachi.conv.Msg(role='user', content=user_message)
+            dachi.msg.Msg(role='user', content=user_message)
         )
         res = ''
         dialog = dachi.msg.exclude_messages(
@@ -104,7 +104,7 @@ class Tutorial3(ChatTutorial):
                 res += c
       
         self._dialog.append(
-            dachi.conv.Msg(role='assistant', content=res)
+            dachi.msg.Msg(role='assistant', content=res)
         )
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:

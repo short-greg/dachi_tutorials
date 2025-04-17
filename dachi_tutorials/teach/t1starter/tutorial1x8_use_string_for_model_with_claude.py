@@ -11,7 +11,7 @@
 
 #         self._dialog = dachi.Dialog()
 
-#         self._dialog = dachi.conv.ListDialog(
+#         self._dialog = dachi.msg.ListDialog(
 #             msg_renderer=dachi.conv.RenderMsgField()
 #         )
 #         self._model = dachi.adapt.anthropic.AnthropicModel()
@@ -19,7 +19,7 @@
 #     def clear(self):
 #         self._dialog = dachi.Dialog()
 
-#     @dachi.inst.signaturemethod(engine='_model')
+#     @dachi.asst.signaturemethod(engine='_model')
 #     def make_decision(self, question) -> str:
 #         """
 #         You must recommend a movie to the user. 
@@ -34,7 +34,7 @@
 #         """
 #         pass
 
-#     @dachi.inst.signaturemethod(engine='_model')
+#     @dachi.asst.signaturemethod(engine='_model')
 #     def recommendation(self, question) -> str:
 #         """You must recommend a movie to the user.
         

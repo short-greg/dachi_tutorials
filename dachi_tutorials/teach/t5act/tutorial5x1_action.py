@@ -28,24 +28,24 @@ class Tutorial1(AgentTutorial):
         super().__init__(callback, interval)
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.conv.ListDialog()
-        self._response = dachi.act.Shared()
+        self._dialog = dachi.msg.ListDialog()
+        self._response = dachi.store.Shared()
         self._task = ProposeSynopsis(response=self._response)
 
     def clear(self):
-        self._dialog = dachi.conv.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
         status = self._task.tick()
         if status.success:
             self._callback(self._response.get())
-            assistant = dachi.conv.Msg(
+            assistant = dachi.msg.Msg(
                 role='assistant', 
                 content=self._response.get()
             )
-            self._dialog.insert(
-                assistant, inplace=True
+            self._dialog.append(
+                assistant
             )
         if status.is_done:
             self._task.reset()

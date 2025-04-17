@@ -10,7 +10,7 @@ import pydantic
 
 class LLMAction(dachi.act.Action):
 
-    response: typing.Optional[dachi.act.Shared] = None
+    response: typing.Optional[dachi.store.Shared] = None
     _model = pydantic.PrivateAttr()
 
     def __init__(self, **data):
@@ -32,9 +32,9 @@ class LLMAction(dachi.act.Action):
         if r > 0.002:
             return dachi.act.TaskStatus.FAILURE
         
-        message = dachi.conv.Msg(role='system', content=self.prompt)
-        
-        self.response.set(self._model(message)[1])
+        message = dachi.msg.Msg(role='system', content=self.prompt)
+        response = self._model.forward(message.to_list_input())
+        self.response.set(response['content'])
         return dachi.act.TaskStatus.SUCCESS
     
     def reset(self):

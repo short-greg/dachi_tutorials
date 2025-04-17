@@ -34,11 +34,11 @@ class Tutorial0(AgentTutorial):
         super().__init__(callback, interval)
 
         self.model = 'gpt-4o-mini'
-        self._dialog = dachi.conv.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
         self._task = DummyAction()
 
     def clear(self):
-        self._dialog = dachi.conv.ListDialog()
+        self._dialog = dachi.msg.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
@@ -46,9 +46,9 @@ class Tutorial0(AgentTutorial):
         if status.success:
             self._callback(self._task.response)
 
-            assistant = dachi.conv.Msg(role='assistant', content=self._task.response)
-            self._dialog.insert(
-                assistant, inplace=True
+            assistant = dachi.msg.Msg(role='assistant', content=self._task.response)
+            self._dialog.append(
+                assistant
             )
 
         self._task.reset()

@@ -6,7 +6,7 @@
 # from ..base import OpenAILLM
 
 
-# class Role(dachi.inst.Description):
+# class Role(dachi.asst.Description):
 
 #     name: str
 #     descr: str
@@ -44,7 +44,7 @@
 #     def clear(self):
 #         self._dialog = dachi.msg.ListDialog()
 
-#     @dachi.inst.instructmethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_stream=True)
+#     @dachi.asst.instructmethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_stream=True)
 #     def recommendation(self, question) -> str:
 #         """
 #         """
@@ -57,17 +57,17 @@
 #             role, details, linebreak=1
 #         )
 
-#         response_format = dachi.inst.section(
+#         response_format = dachi.asst.section(
 #             'Response Format', 
 #             '<Make recommendation or state current understanding>\n'
 #             '<Ask follow-up question>'
 #         )
-#         user_question = dachi.inst.section(
+#         user_question = dachi.asst.section(
 #             "Here is the user's question", 
 #             f'{question}'
 #         )
 
-#         return dachi.inst.cat([header, response_format, user_question])
+#         return dachi.asst.cat([header, response_format, user_question])
 
 #     def render_header(self):
 #         pass
@@ -75,10 +75,10 @@
 #     def forward(self, user_message: str) -> typing.Iterator[str]:
         
 #         self._dialog.insert(
-#             dachi.conv.Msg(role='user', content=user_message), inplace=True
+#             dachi.msg.Msg(role='user', content=user_message), inplace=True
 #         )
 #         res = ''
-#         dialog = dachi.conv.exclude_messages(
+#         dialog = dachi.msg.exclude_messages(
 #             self._dialog, 'system'
 #         )
 #         for c in self.recommendation(
@@ -89,7 +89,7 @@
 #                 res += c
       
 #         self._dialog.insert(
-#             dachi.conv.Msg(role='assistant', content=res),
+#             dachi.msg.Msg(role='assistant', content=res),
 #             inplace=True
 #         )
     

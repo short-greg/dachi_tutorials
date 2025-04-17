@@ -18,7 +18,7 @@
 #     def clear(self):
 #         self._dialog = dachi.Dialog()
 
-#     @dachi.inst.signaturemethod('_model')
+#     @dachi.asst.signaturemethod('_model')
 #     def make_decision(self, question) -> str:
 #         """
 #         You must recommend a movie to the user. 
@@ -33,7 +33,7 @@
 #         """
 #         pass
 
-#     @dachi.inst.signaturemethod('_model')
+#     @dachi.asst.signaturemethod('_model')
 #     def recommendation(self, question) -> str:
 #         """You must recommend a movie to the user.
         

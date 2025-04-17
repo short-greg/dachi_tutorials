@@ -53,13 +53,13 @@ class Tutorial4(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        user_message = dachi.conv.Msg(role='user', content=user_message)
+        user_message = dachi.msg.Msg(role='user', content=user_message)
         self._messages.append(user_message)
 
         role = self.decide_role(self._messages[-1])
         response = f'Your role is {role['name']}, {role['description']}'
         yield response
-        assistant = dachi.conv.Msg(role='assistant', content=response)
+        assistant = dachi.msg.Msg(role='assistant', content=response)
         self._messages.append(assistant)        
     
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
