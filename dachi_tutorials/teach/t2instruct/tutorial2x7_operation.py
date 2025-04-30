@@ -32,7 +32,7 @@
 #         self._dialog = dachi.msg.ListDialog(
 #             msg_renderer=dachi.conv.RenderMsgField()
 #         )
-#         self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
+#         self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
 #         self._role = Role(
 #             name="Movie Recommender",
 #             descr=
@@ -48,7 +48,7 @@
 #             msg_renderer=dachi.conv.RenderMsgField()
 #         )
 
-#     @dachi.asst.instructmethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_stream=True)
+#     @dachi.asst.instructmethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), to_stream=True)
 #     def recommendation(self, question) -> str:
 #         """
 #         """

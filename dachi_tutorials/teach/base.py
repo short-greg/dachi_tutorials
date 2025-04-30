@@ -121,8 +121,10 @@ class OpenAILLM(
         procs=[], kwargs: typing.Dict=None
     ):
         
+        self._model = model
         kwargs = kwargs or {}
         kwargs['model'] = model
+        
         super().__init__(
             procs=procs,
             kwargs=kwargs
@@ -168,3 +170,16 @@ class OpenAILLM(
             **{**self._kwargs, **kwargs}
         ):
             yield msg
+
+    def spawn(
+        self, 
+        model=dachi.utils.UNDEFINED, 
+        procs=dachi.utils.UNDEFINED, 
+        kwargs: typing.Dict=dachi.utils.UNDEFINED
+    ):
+        model = dachi.utils.coalesce(model, self._model)
+        kwargs = dachi.utils.coalesce(kwargs, self._kwargs)
+        procs = dachi.utils.coalesce(procs, self.procs)
+        return OpenAILLM(
+            model=model, procs=procs, kwargs=kwargs
+        )

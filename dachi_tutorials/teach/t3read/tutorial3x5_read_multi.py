@@ -46,7 +46,7 @@ class Tutorial5(ChatTutorial):
     @dachi.asst.signaturemethod(
         # 'model', 
         # [dachi.adapt.KVConv(Project), dachi.adapt.KVConv(Role)]
-        OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()),
+        OpenAILLM(procs=dachi.asst.openai_asst.TextConv()),
         reader=dachi.asst.MultiTextConv(outs=[
             dachi.asst.KVConv(key_descr=Project), dachi.asst.KVConv(key_descr=Role)]
         )

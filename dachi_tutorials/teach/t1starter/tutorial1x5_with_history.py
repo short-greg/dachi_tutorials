@@ -14,18 +14,18 @@ class Tutorial5(ChatTutorial):
     def __init__(self):
 
         self._dialog = dachi.msg.ListDialog()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
 
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
     def pick_movies(self, question) -> str:
         """List up several movies related to the user's question {question}
         """
         pass
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
     def recommendation(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else.
         

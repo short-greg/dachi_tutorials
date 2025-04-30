@@ -21,7 +21,7 @@ class Tutorial2(ChatTutorial):
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_async=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), to_async=True)
     def summarize(self, topic) -> str:
         """Summarize the topic that the user presents in his messages
 
@@ -30,7 +30,7 @@ class Tutorial2(ChatTutorial):
         """
         pass
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_async=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), to_async=True)
     def list_main_points(self, topic) -> str:
         """List the main points of the topic that the user is requesting in his messages
 

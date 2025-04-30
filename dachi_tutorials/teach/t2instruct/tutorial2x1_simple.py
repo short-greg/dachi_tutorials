@@ -17,7 +17,7 @@ class Tutorial1(ChatTutorial):
         self._dialog = dachi.msg.ListDialog()
 
         self._renderer = dachi.msg.FieldRenderer()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
         self._role = dachi.msg.Cue(
             text=
             """
@@ -31,7 +31,7 @@ class Tutorial1(ChatTutorial):
         self._dialog = dachi.msg.ListDialog(
         )
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
     def make_decision(self, question) -> str:
         """
         {instructions}
@@ -55,7 +55,7 @@ class Tutorial1(ChatTutorial):
             'instructions': instruction
         }
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_stream=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), to_stream=True)
     def recommendation(self, question) -> str:
         """
         {role}

@@ -17,7 +17,7 @@ class LLMAction(dachi.act.Action):
         super().__init__(**data)
 
         self._model = OpenAILLM(
-            procs=dachi.asst.openai_asst.OpenAITextConv(),
+            procs=dachi.asst.openai_asst.TextConv(),
             kwargs={'temperature': 1.0}
         )
 

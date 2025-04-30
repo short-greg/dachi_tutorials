@@ -29,7 +29,7 @@ class Tutorial2(ChatTutorial):
         self.model = 'gpt-4o-mini'
         self._dialog = dachi.msg.ListDialog()
         self._renderer = dachi.msg.FieldRenderer()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
         self._role = Role(
             name="Movie Recommender",
             descr=
@@ -43,7 +43,7 @@ class Tutorial2(ChatTutorial):
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
     def make_decision(self, question) -> str:
         """
         {instructions}
@@ -67,7 +67,7 @@ class Tutorial2(ChatTutorial):
             'instructions': instruction
         }
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), to_stream=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), to_stream=True)
     def recommendation(self, question) -> str:
         """
         {role}

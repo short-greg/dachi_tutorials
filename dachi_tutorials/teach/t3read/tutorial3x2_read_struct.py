@@ -35,7 +35,7 @@ class Tutorial2(ChatTutorial):
         self._messages = []
 
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=[dachi.asst.openai_asst.OpenAITextConv()]), 
+        OpenAILLM(procs=[dachi.asst.openai_asst.TextConv()]), 
         out='content'
     )
     def decide_role(self, text) -> Role:

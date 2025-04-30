@@ -22,7 +22,7 @@ class Tutorial3(ChatTutorial):
         self._dialog = dachi.msg.ListDialog()
 
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()))
+        OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
     def summarize(self, cur_summary, topic) -> str:
         """Summarize the topic that is shared. You will be sent the topic sentence by sentence
         so refine the summary based on the current topic. If there is no current

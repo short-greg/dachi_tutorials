@@ -6,7 +6,7 @@ import dachi.asst.openai_asst
 from ..base import OpenAILLM
 
 model = OpenAILLM(
-    procs=dachi.asst.openai_asst.OpenAITextConv(),
+    procs=dachi.asst.openai_asst.TextConv(),
     kwargs={'temperature': 0.0}
 )
 

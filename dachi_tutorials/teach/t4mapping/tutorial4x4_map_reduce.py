@@ -18,7 +18,7 @@ class Tutorial4(ChatTutorial):
     def __init__(self):
 
         self._dialog = dachi.msg.ListDialog()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
         self._renderer = dachi.msg.FieldRenderer()
 
     def clear(self):

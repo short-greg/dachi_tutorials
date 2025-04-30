@@ -34,7 +34,7 @@ class Tutorial1(ChatTutorial):
     def __init__(self):
 
         self.model = OpenAILLM(
-            procs=dachi.asst.openai_asst.OpenAITextConv()
+            procs=dachi.asst.openai_asst.TextConv()
         )
         self._dialog = dachi.msg.ListDialog()
         self.role = "You are a storywriter who writes original fictional stories."

@@ -14,7 +14,7 @@ class Tutorial7(ChatTutorial):
         self.model = 'gpt-4o-mini'
         self._dialog = dachi.msg.ListDialog()
         self._renderer = dachi.msg.FieldRenderer('content')
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
+        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
 
     def clear(self):
         self._dialog = dachi.msg.ListDialog(

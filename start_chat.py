@@ -50,6 +50,9 @@ from dachi_tutorials.teach.t7_storywriter import (
 from dachi_tutorials.teach.t8_flight_reserver import (
     tutorial8x1_flight_reserver1,
 )
+from dachi_tutorials.teach.t9_film_synopsis_writer import (
+    tutorial9_1_synopsis_writer,
+)
 
 dotenv.load_dotenv()
 st.title('ChatGPT-like Clone')
@@ -85,6 +88,7 @@ tutorial_map = {
     'Tutorial 4-5': tutorial4x5_one_to_many.Tutorial5,
     'Tutorial 7-1': tutorial7x1_write_story.Tutorial1,
     'Tutorial 8-1': tutorial8x1_flight_reserver1.Tutorial1,
+    'Tutorial 9-1': tutorial9_1_synopsis_writer.Tutorial1,
     
 }
 

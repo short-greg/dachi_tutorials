@@ -31,7 +31,7 @@ class Tutorial1(ChatTutorial):
 
     def __init__(self):
 
-        self.model = OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv())
+        self.model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
         self.role = (
             "You work for an airline agency that "
             "needs to help the customer book a package tour."
@@ -47,9 +47,9 @@ class Tutorial1(ChatTutorial):
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
 
-    @dachi.act.taskfunc('pref')
+    @dachi.act.taskmethod('pref')
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()), 
+        OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), 
         response_format={"type": "json_object"}
     )
     def update_pref(self) -> UserPref:
@@ -78,8 +78,8 @@ class Tutorial1(ChatTutorial):
             'pref': dachi.msg.render(self.pref.data)
         }
 
-    @dachi.act.sequencefunc('context.destination')
-    def select_destination(self) -> typing.Iterator[dachi.act.Task]:
+    @dachi.act.sequencemethod()
+    def select_destination(self, ctx: dachi.store.Context) -> typing.Iterator[dachi.act.Task]:
 
         yield self.pref.data.destination is None
         dialog = dachi.msg.exclude_messages(self._dialog, 'system', 'role')
@@ -100,9 +100,9 @@ class Tutorial1(ChatTutorial):
             ).to_list_input(), self.context.stream_destination, 'content'
         )
     
-    @dachi.act.sequencefunc('context.package')
+    @dachi.act.sequencemethod()
     def choose_package(
-        self
+        self, ctx: dachi.store.Context
     ) -> typing.Iterator[dachi.act.Task]:
 
         yield self.pref.data.package is None
@@ -125,10 +125,8 @@ class Tutorial1(ChatTutorial):
             ).to_list_input(), self.context.stream_package, 'content'
         )
 
-    @dachi.act.sequencefunc('context.time')
-    def set_time(
-        self
-    ) -> typing.Iterator[dachi.act.Task]:
+    @dachi.act.sequencemethod()
+    def set_time(self, ctx: dachi.store.Context) -> typing.Iterator[dachi.act.Task]:
 
         yield self.pref.data.num_nights is None
         yield self.pref.data.start_date is None
@@ -151,7 +149,7 @@ class Tutorial1(ChatTutorial):
             ).to_list_input(), self.context.stream_model, 'content'
         )
     
-    @dachi.act.sequencefunc('context.dest')
+    @dachi.act.sequencemethod()
     def end_discussion(
         self
     ) -> typing.Iterator[dachi.act.Task]:
@@ -196,12 +194,12 @@ class Tutorial1(ChatTutorial):
 
         while not status.is_done:
             status = dachi.act.sequence([
-                self.update_pref.task(),
+                self.update_pref(),
                 dachi.act.selector([
-                    self.select_destination.task(),
-                    self.choose_package.task(),
-                    self.set_time.task(),
-                    self.end_discussion.task()
+                    self.select_destination(self.context.destination),
+                    self.choose_package(self.context.package),
+                    self.set_time(self.context.time),
+                    self.end_discussion(self.context.end_discussion)
                 ], self.context.select)
             ], self.context.seq)()
             cur_text = ''.join(self.buffer_iter.read_map(lambda x: x if x is not None else ''))

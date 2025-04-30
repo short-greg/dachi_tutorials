@@ -28,7 +28,7 @@ class MoviesTutorial(ChatTutorial):
         self.dialog = dachi.Dialog()
 
         self.ai_model = OpenAILLM(
-            resp_procs=dachi.asst.openai_asst.OpenAITextConv(),
+            resp_procs=dachi.asst.openai_asst.TextConv(),
             temperature=0.0
         )
         self.dialog.system(

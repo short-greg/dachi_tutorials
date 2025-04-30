@@ -15,7 +15,7 @@ class Tutorial3(ChatTutorial):
 
     @dachi.asst.signaturemethod(
         OpenAILLM(
-            procs=[dachi.asst.openai_asst.OpenAITextConv('content')]
+            procs=[dachi.asst.openai_asst.TextConv('content')]
         ), out='content', to_stream=True)
     def answer_question(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else 

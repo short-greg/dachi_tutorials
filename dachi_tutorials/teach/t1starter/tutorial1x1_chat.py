@@ -15,7 +15,7 @@ class Tutorial1(ChatTutorial):
             'model': 'gpt-4o-mini'
         }
         self.client = openai.Client()
-        self.text_processor = dachi.asst.openai_asst.OpenAITextConv('content')
+        self.text_processor = dachi.asst.openai_asst.TextConv('content')
         self._messages = []
 
     def render_header(self):

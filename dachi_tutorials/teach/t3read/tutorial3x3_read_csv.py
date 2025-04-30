@@ -30,7 +30,7 @@ class Tutorial3(ChatTutorial):
         self._dialog = dachi.msg.ListDialog()
 
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=dachi.asst.openai_asst.OpenAITextConv()),
+        OpenAILLM(procs=dachi.asst.openai_asst.TextConv()),
         dachi.asst.CSVRowParser(indexed=False, delim=',', cols=Role)
     )
     def decide_role(self, text) -> Role:
