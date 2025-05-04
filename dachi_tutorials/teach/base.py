@@ -118,20 +118,27 @@ class OpenAILLM(
 
     def __init__(
         self, model='gpt-4o-mini', 
-        procs=[], kwargs: typing.Dict=None
+        procs=[], temperature: float=1.0, kwargs: typing.Dict=None
     ):
         
         self._model = model
         kwargs = kwargs or {}
         kwargs['model'] = model
+        kwargs['temperature'] = temperature
         
         super().__init__(
             procs=procs,
-            kwargs=kwargs
+            kwargs=kwargs,
         )
     
-    def forward(self, messages: typing.List[typing.Dict], **kwargs):
+    def forward(
+        self, 
+        messages: typing.List[typing.Dict], **kwargs
+    ):
         client = openai.Client()
+        for proc in self.procs:
+            if isinstance(proc, dachi.asst.RespConv):
+                kwargs.update(proc.prep())
         return dachi.asst.llm_forward(
             client.chat.completions.create, 
             messages=messages,
@@ -141,6 +148,9 @@ class OpenAILLM(
 
     async def aforward(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.AsyncClient()
+        for proc in self.procs:
+            if isinstance(proc, dachi.asst.RespConv):
+                kwargs.update(proc.prep())
         return await dachi.asst.llm_aforward(
             client.chat.completions.create, 
             messages=messages,
@@ -151,6 +161,9 @@ class OpenAILLM(
     def stream(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.Client()
         print(messages)
+        for proc in self.procs:
+            if isinstance(proc, dachi.asst.RespConv):
+                kwargs.update(proc.prep())
         for msg in dachi.asst.llm_stream(
             client.chat.completions.create, 
             messages=messages,
@@ -162,6 +175,9 @@ class OpenAILLM(
 
     async def astream(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.AsyncClient()
+        for proc in self.procs:
+            if isinstance(proc, dachi.asst.RespConv):
+                kwargs.update(proc.prep())
         async for msg in await dachi.asst.llm_astream(
             client.chat.completions.create, 
             messages=messages,

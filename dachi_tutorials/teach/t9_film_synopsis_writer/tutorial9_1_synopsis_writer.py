@@ -5,12 +5,11 @@ import pydantic
 from dachi.proc import F
 from dachi.msg import render
 from dachi.act import threaded_task
-from dachi.store import Context
 from ..base import OpenAILLM
-from collections import deque
 import dachi.asst.openai_asst
 from dachi.asst.openai_asst import ParsedConv
 
+import uuid
 
 class LikertScale(pydantic.BaseModel):
 
@@ -36,7 +35,7 @@ class CriterionEvaluation(pydantic.BaseModel):
 
     name: str = pydantic.Field("The name of the criterion.")
     score: int = pydantic.Field("The integer Likert Score for the criterion.")
-    description: int = pydantic.Field("THe description of the Likert score.")
+    description: str = pydantic.Field("THe description of the Likert score.")
     reason: str = pydantic.Field(
         "The reason for the evaluation including advice on how to improve."
     )
@@ -72,25 +71,29 @@ class Evaluation(pydantic.BaseModel):
         default_factory=list, description="The evaluation for each of the Likert criteria."
     )
     summary: str = pydantic.Field(
-        default='', description="A general summary of the synopsis including advice on how to improve."
+        default='', description="A general summary of the synopsis including advice on how to improve and recommendations to change fundamental direction if it is lacking."
     )
     
     def render(self) -> str:
         return (
             f'{self.summary}\n'
             '\n'.join(
-                evaluation.render() for evaluation in self.evaluations
+                render(evaluation) for evaluation in self.evaluations
             )
         )
 
 
 class Submission(pydantic.BaseModel):
 
-    id: str
+    id: str = pydantic.Field(
+        default_factory=lambda: str(uuid.uuid4()),
+        description="The unique identifier for the submission."
+    )
     author: typing.Optional[str] = None
     evaluation: typing.Optional[Evaluation] = None
     synopsis: typing.Optional[str] = None
     reviewing: bool = False
+    accepted: bool = False
 
 
 from dataclasses import dataclass, field
@@ -104,7 +107,7 @@ class Blackboard(dachi.store.Blackboard):
 
     def author_prepared(self, author) -> bool:
         
-        for submission in self.submissions:
+        for submission in reversed(self.submissions):
             if submission.author == author:
                 if submission.evaluation is None:
                     return False, None
@@ -119,6 +122,14 @@ class Blackboard(dachi.store.Blackboard):
             Submission(author=author, synopsis=synopsis)
         )
 
+    def add_evaluation(self, id, evaluation: Evaluation):
+        
+        for submission in self.submissions:
+            if submission.id == id:
+                submission.evaluation = evaluation
+                return
+        raise ValueError(f"Submission with id {id} not found.")
+
     def get_synopsis(self) -> typing.Tuple[str, str]:
         
         for submission in self.submissions:
@@ -126,11 +137,25 @@ class Blackboard(dachi.store.Blackboard):
                 submission.synopsis is not None 
                 and (
                     submission.evaluation is None
-                    or not submission.reviewing
+                    and not submission.reviewing
                 )
             ):
-                return submission.author, submission.synopsis
+                submission.reviewing = True
+                return submission.id, submission.synopsis
         return None, None
+    
+    def accept(self, id: str):
+        for submission in self.submissions:
+            if submission.id == id:
+                submission.accepted = True
+                return
+        raise ValueError(f"Submission with id {id} not found.")
+    
+    def accepted(self) -> bool:
+        for submission in self.submissions:
+            if submission.accepted:
+                return True
+        return False
 
 
 class Writer(dachi.act.Task):
@@ -142,6 +167,7 @@ class Writer(dachi.act.Task):
         goal: str,
         buffer: dachi.store.Buffer
     ):
+        super().__init__()
         
         self._blackboard = blackboard
         self.name = name
@@ -171,16 +197,13 @@ class Writer(dachi.act.Task):
     @dachi.act.sequencemethod()
     def propose_synopsis(self, ctx: dachi.store.Context):
 
-        # 1) has anything been submitted
         brainstorm = dachi.store.Shared()
         synopsis = dachi.store.Shared()
+        # 1) has anything been submitted
         prepared, evaluation = self._blackboard.author_prepared(self.name)
-        if not prepared:
-            yield dachi.act.TaskStatus.FAILURE
-            return
-
-        yield dachi.act.TaskStatus.RUNNING
-
+        yield prepared
+        
+        # prepared, evaluation = self._blackboard.author_prepared(self.name)
         yield threaded_task(F(self._op, f"""
         {self._role}
 
@@ -190,8 +213,10 @@ class Writer(dachi.act.Task):
         you have received about your synopsis and come up with an idea
         for how to improve upon it based on the feedback received.
 
-        {evaluation.render()}
+        {render(evaluation)}
         """, _out=str), self._ctx.brainstorm, brainstorm)
+
+        print('Preparing synopsis')
 
         yield threaded_task(F(self._op, f"""
         {self._role}
@@ -201,18 +226,19 @@ class Writer(dachi.act.Task):
         Propose a synopsis to a movie based on your thoughts and the 
         evaluations that you have received
 
-        {evaluation.render()}
+        {render(evaluation)}
         """, _out=str), self._ctx.synopsis, synopsis)
 
         self._buffer.add(
-            synopsis.data.render()
+            synopsis.render()
         )
 
-        self._blackboard.add_synopsis(self._name, synopsis.data)
+        self._blackboard.submit_synopsis(self.name, synopsis.data)
         yield dachi.act.TaskStatus.SUCCESS
-    propose_synopsis: typing.ClassVar
 
     def tick(self, reset: bool=False):
+        if reset:
+            self._ctx.reset()
         return self.propose_synopsis(
             self._ctx.synopsis
         )(reset=reset)
@@ -224,12 +250,14 @@ class Critic(dachi.act.Task):
         self, blackboard: Blackboard, background: str, goal: str,
         buffer: dachi.store.Buffer
     ):
+        super().__init__()
         
         self._blackboard = blackboard
         self._background = background
         self._goal = goal
         self._buffer = buffer
         self._rubric = None
+        self._i = 0
     
         self._op = dachi.asst.Op(
             OpenAILLM('gpt-4o-mini', [dachi.asst.openai_asst.TextConv('content')]
@@ -238,7 +266,8 @@ class Critic(dachi.act.Task):
         # 1) I need a way to override the process...
         self._role = """
         You are the critic for a team of writers. 
-        You are an extemely fair, strict, harsh critic and demand high quality from the writers.
+        You are an extemely strict, harsh critic and demand high quality from the writers.
+        You do not give high scores easily considering a middle socre to be average.
         You want to ensure there is always a good distribution of evaluations
         that are given
 
@@ -254,25 +283,22 @@ class Critic(dachi.act.Task):
 
         """
         self._ctx = dachi.store.ContextStorage()
-
+    
     @dachi.act.sequencemethod()
-    def define_rubric(self, ctx: dachi.store.Context):
+    def prepare_rubric(self, ctx: dachi.store.Context):
 
+        criteria_ctx = dachi.store.Context()
+        rubric_ctx = dachi.store.Context()
         rubric = dachi.store.Shared()
         criteria = dachi.store.Shared()
-        if self._rubric is None:
-            yield dachi.act.TaskStatus.SUCCESS
-        else:
-            yield dachi.act.TaskStatus.FAILURE
-
         step_prompt = """
         You need to come up with an evaluation rubric that will help you achieve 
         the goal stated above. If you achieve the goal you will likely get a huge
         bonus. You believe that conducting great evaluations is critical to help you
         achieve the goal.
         """
-        # 1: Recruit writers
-        # 2: Recruit critics
+        yield self._rubric is not None
+
         yield threaded_task(F(self._op, f"""
         # Role         
         {self._role}
@@ -289,9 +315,9 @@ class Critic(dachi.act.Task):
         choosing these criteria and your evaluation of how 
         much value these criteria will provide for achieving the goal.
         rationale for why you choose these criteria. 
-        """, _out=str), self._ctx.criteria, criteria)
+        """, _out=str), criteria_ctx, criteria)
 
-        yield threaded_task(F(self._op.asst(procs=ParsedConv(Rubric)), f"""
+        yield threaded_task(F(self._op.asst(procs=[ParsedConv(Rubric)]), f"""
         # Role         
         {self._role}
 
@@ -304,12 +330,11 @@ class Critic(dachi.act.Task):
 
         Choose 5 criteria for your rubric. If you see some criteria that
         can be consolildated into a more valuable rubric then do so.
-        """), self._ctx.rubric, rubric)
+        """), rubric_ctx, rubric)
 
         self._buffer.add(
-            rubric.data.render()
+            rubric.render()
         )
-
         self._rubic = rubric.data
         yield dachi.act.TaskStatus.SUCCESS
 
@@ -318,17 +343,13 @@ class Critic(dachi.act.Task):
         # 1) propose some ideas for how to improve the writer's prompt
         evaluation = dachi.store.Shared()
         accept = dachi.store.Shared()
-        author, synopsis  = self._blackboard.get_synopsis()
+        id, synopsis  = self._blackboard.get_synopsis()
     
-        if synopsis is not None:
-            # There is a chance here that if it fails later then this
-            # will not be added back onto the blackboard
-            # synopsis = self._blackboard.queued_synopses.popleft()
-            yield dachi.act.TaskStatus.SUCCESS
-        else:
-            yield dachi.act.TaskStatus.FAILURE
+        if synopsis is None:
+            yield False
 
-        yield threaded_task(F(self._op.asst(procs=ParsedConv(Evaluation)), f"""
+        print('Critiquing synopsis')
+        yield threaded_task(F(self._op.asst(procs=[ParsedConv(Evaluation)]), f"""
         {self._role}
         {self._context}
         
@@ -341,11 +362,12 @@ class Critic(dachi.act.Task):
         # Synopsis
         {synopsis}
         """), self._ctx.evaluation, evaluation)
-        self._blackboard.add_evaluation(synopsis, evaluation.data)
+        self._blackboard.add_evaluation(id, evaluation.data)
         
         self._buffer.add(
-            evaluation.data.render()
+            evaluation.render()
         )
+        print('Eavluation: ', evaluation.render())
 
         yield threaded_task(F(self._op, f"""
         {self._role}
@@ -366,21 +388,22 @@ class Critic(dachi.act.Task):
         {render(evaluation)}
 
         # Evaluation Summary
-        {self._blackboard.evaluation_summary}
+        {render(evaluation)}
         """, _out=bool), self._ctx.accept, accept)
         if accept.data:
-            yield dachi.act.TaskStatus.SUCCESS
-        yield dachi.act.TaskStatus.FAILURE
-    writer_feedback: typing.ClassVar
+            self._blackboard.accept(id)
+        yield accept.data
 
     def tick(self, reset: bool=False):
         
+        if reset:
+            self._ctx.reset()
         # TODO: I have to allow rset to 
-
-        return dachi.act.selector([
-            self.define_rubric(self._ctx.rubric),
+        status = dachi.act.selector([
+            self.prepare_rubric(self._ctx.rubric),
             self.writer_feedback(self._ctx.feedback),
         ], self._ctx.S1)(reset=reset)
+        return status
 
 
 class Tutorial1(ChatTutorial):
@@ -397,7 +420,7 @@ class Tutorial1(ChatTutorial):
     """
 
     def __init__(self):
-        self.model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
+        self.model = OpenAILLM(procs=[dachi.asst.openai_asst.TextConv()])
         self.role = (
             "You work for an airline agency that "
             "needs to help the customer book a package tour."
@@ -416,29 +439,17 @@ class Tutorial1(ChatTutorial):
 
         self._writers = [Writer(str(i), self._blackboard, self.buffer, self.goal, self.buffer) for i in range(5)]
 
-    @dachi.act.sequencemethod()
-    def write(self, ctx: dachi.store.ContextStorage):
+    @dachi.act.parallelmethod()
+    def critique(self, ctx: dachi.store.Context):
+
+        for critic in self._critics:
+            yield critic
+
+    @dachi.act.parallelmethod()
+    def write(self, ctx: dachi.store.Context):
         
-        reset_critics = [False for _ in self._critics]
-        reset_writers = [False for _ in self._writers]
-        while True:
-            writer_statuses = []
-            critic_statuses = []
-            for writer, reset in zip(self._writers, reset_writers):
-                
-                status = writer(reset)
-                writer_statuses.append(status)
-
-            for critic, reset in zip(self._critics, reset_critics):
-                
-                status = critic(reset)
-                critic_statuses.append(status)
-                if status.success:
-                    yield dachi.act.TaskStatus.SUCCESS
-                    return
-
-            reset_writers = [True if status.is_done else False for status in writer_statuses]
-            reset_critics = [True if status.is_done else False for status in critic_statuses]
+        for writer in self._writers:
+            yield writer
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
@@ -454,15 +465,24 @@ class Tutorial1(ChatTutorial):
         # I think I need a "waiting" shared value
         # and then set that to true when waiting for a user response
         status = dachi.act.TaskStatus.READY
-
+        # I want to be able to preempt if accepted
+        # Preempt()
         text = ''
+        task = dachi.act.sequence([
+            dachi.act.parallel([
+                self.write(context.write),
+                self.critique(context.critique)
+            ]
+        ), lambda reset: self._blackboard.accepted()],
+        context.S1)
 
-        task = self.write(context.write)
-
-        while not status.is_done:
-            
-            status = task()
-            cur_text = ''.join(buffer_iter.read_map(lambda x: x if x is not None else ''))
+        while not status.success:
+            reset = status.failure
+        
+            status = task(reset)
+            if status.is_done:
+                print(status)
+            cur_text = '\n'.join(buffer_iter.read_map(lambda x: x if x is not None else '')) + '\n'
 
             yield cur_text
             text += cur_text
