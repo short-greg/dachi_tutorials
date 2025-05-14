@@ -5,9 +5,7 @@ import pydantic
 from dachi.proc import F
 from dachi.msg import render
 from dachi.act import threaded_task
-from ..base import OpenAILLM
-import dachi.asst.openai_asst
-from dachi.asst.openai_asst import ParsedConv
+from ..base import OpenAILLM, TextConv
 
 import uuid
 
@@ -176,8 +174,8 @@ class Writer(dachi.act.Task):
         self._ctx = dachi.store.ContextStorage()
         self._op = dachi.asst.Op(
             OpenAILLM('gpt-4o-mini', [
-                dachi.asst.openai_asst.TextConv('content')]
-            ), dachi.asst.ToText(role='user'), 
+                TextConv('content')]
+            ), dachi.msg.ToText(role='user'), 
             out='content'
         )
         self._buffer = buffer
@@ -260,8 +258,8 @@ class Critic(dachi.act.Task):
         self._i = 0
     
         self._op = dachi.asst.Op(
-            OpenAILLM('gpt-4o-mini', [dachi.asst.openai_asst.TextConv('content')]
-            ), dachi.asst.ToText(role='user'), out='content'
+            OpenAILLM('gpt-4o-mini', [TextConv('content')]
+            ), dachi.msg.ToText(role='user'), out='content'
         )
         # 1) I need a way to override the process...
         self._role = """
@@ -420,7 +418,7 @@ class Tutorial1(ChatTutorial):
     """
 
     def __init__(self):
-        self.model = OpenAILLM(procs=[dachi.asst.openai_asst.TextConv()])
+        self.model = OpenAILLM(procs=[TextConv()])
         self.role = (
             "You work for an airline agency that "
             "needs to help the customer book a package tour."

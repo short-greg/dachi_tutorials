@@ -3,8 +3,8 @@ import dachi
 import typing
 import pydantic
 
-import dachi.asst.openai_asst
-from ..base import OpenAILLM
+
+from ..base import OpenAILLM, TextConv
 
 class Role(pydantic.BaseModel):
 
@@ -29,7 +29,7 @@ class Tutorial2(ChatTutorial):
         self.model = 'gpt-4o-mini'
         self._dialog = dachi.msg.ListDialog()
         self._renderer = dachi.msg.FieldRenderer()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
+        self._model = OpenAILLM(procs=TextConv())
         self._role = Role(
             name="Movie Recommender",
             descr=
@@ -43,13 +43,13 @@ class Tutorial2(ChatTutorial):
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()))
     def make_decision(self, question) -> str:
         """
         {instructions}
 
         """
-        instruction = dachi.msg.Cue(
+        instruction = dachi.inst.Cue(
             text="""
             Decide on how to respond to the user. 
             Whether to ask a question, respond directly, probe deeper etc.
@@ -59,15 +59,15 @@ class Tutorial2(ChatTutorial):
             {question}
             """
         )
-        instruction = dachi.msg.fill(instruction, question=question)
-        instruction = dachi.msg.cat(
+        instruction = dachi.inst.fill(instruction, question=question)
+        instruction = dachi.inst.cat(
             [self._role, instruction], '\n\n'
         )
         return {
             'instructions': instruction
         }
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), to_stream=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()), to_stream=True)
     def recommendation(self, question) -> str:
         """
         {role}

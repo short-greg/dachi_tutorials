@@ -24,7 +24,10 @@ class Tutorial0(ChatTutorial):
     def clear(self):
         self._messages = []
 
-    def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
+    def messages(
+        self, 
+        include: typing.Callable[[str, str], bool]=None
+    ) -> typing.Iterator[typing.Tuple[str, str]]:
         for role, text in self._messages:
             if include is None or include(role, text):
                 yield role, text

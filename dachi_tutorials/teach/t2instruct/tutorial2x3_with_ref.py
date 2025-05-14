@@ -1,11 +1,10 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 
 
-class Role(dachi.msg.Description):
+class Role(dachi.inst.Description):
 
     descr: str
 
@@ -27,7 +26,7 @@ class Tutorial3(ChatTutorial):
         self.model = 'gpt-4o-mini'
         self._dialog = dachi.msg.ListDialog()
         self._renderer = dachi.msg.FieldRenderer()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
+        self._model = OpenAILLM(procs=TextConv())
         self._role = Role(
             name="Movie Recommender",
             descr=
@@ -39,17 +38,15 @@ class Tutorial3(ChatTutorial):
         )
 
     def clear(self):
-        self._dialog = dachi.msg.ListDialog(
-            msg_renderer=dachi.conv.RenderMsgField()
-        )
+        self._dialog = dachi.msg.ListDialog()
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()))
     def make_decision(self, question) -> str:
         """
         {instructions}
 
         """
-        instruction = dachi.msg.Cue(
+        instruction = dachi.inst.Cue(
             text="""
             Decide on how to respond to the user. 
             Whether to ask a question, respond directly, probe deeper etc.
@@ -61,16 +58,16 @@ class Tutorial3(ChatTutorial):
             {question}
             """
         )
-        ref = dachi.msg.Ref(desc=self._role)
-        instruction = dachi.msg.fill(instruction, question=question, role=ref)
-        instruction = dachi.msg.cat(
+        ref = dachi.inst.Ref(desc=self._role)
+        instruction = dachi.inst.fill(instruction, question=question, role=ref)
+        instruction = dachi.inst.cat(
             [self._role, instruction], '\n\n'
         )
         return {
             'instructions': instruction
         }
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), to_stream=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()), to_stream=True)
     def recommendation(self, question) -> str:
         """
         {role}

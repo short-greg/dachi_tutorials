@@ -3,7 +3,7 @@ import dachi
 import typing
 from pydantic import BaseModel
 import pydantic
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 
 
 class UserPref(BaseModel):
@@ -31,7 +31,7 @@ class Tutorial1(ChatTutorial):
 
     def __init__(self):
 
-        self.model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
+        self.model = OpenAILLM(procs=TextConv())
         self.role = (
             "You work for an airline agency that "
             "needs to help the customer book a package tour."
@@ -49,8 +49,8 @@ class Tutorial1(ChatTutorial):
 
     @dachi.act.taskmethod('pref')
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), 
-        response_format={"type": "json_object"}
+        OpenAILLM(procs=TextConv()), 
+        kwargs=dict(response_format={"type": "json_object"})
     )
     def update_pref(self) -> UserPref:
         """
@@ -75,7 +75,7 @@ class Tutorial1(ChatTutorial):
             'role': self.role,
             'doc': dachi.utils.doc(UserPref),
             'dialog': self._renderer(dialog),
-            'pref': dachi.msg.render(self.pref.data)
+            'pref': dachi.inst.render(self.pref.data)
         }
 
     @dachi.act.sequencemethod()

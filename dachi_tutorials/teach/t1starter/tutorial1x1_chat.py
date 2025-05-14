@@ -2,8 +2,10 @@ from ..base import ChatTutorial
 import dachi
 import typing
 import typing
-import dachi.asst.openai_asst
+import dachi.adapt.xopenai
 import openai
+
+from ..base import TextConv
 
 class Tutorial1(ChatTutorial):
     """This tutorial uses the basic "ChatModel" in order to generate moive recommendations.
@@ -15,7 +17,7 @@ class Tutorial1(ChatTutorial):
             'model': 'gpt-4o-mini'
         }
         self.client = openai.Client()
-        self.text_processor = dachi.asst.openai_asst.TextConv('content')
+        self.text_processor = TextConv('content')
         self._messages = []
 
     def render_header(self):

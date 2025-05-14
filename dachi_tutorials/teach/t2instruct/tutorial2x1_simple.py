@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
+from ..base import TextConv
 
 from ..base import OpenAILLM
 
@@ -17,8 +17,8 @@ class Tutorial1(ChatTutorial):
         self._dialog = dachi.msg.ListDialog()
 
         self._renderer = dachi.msg.FieldRenderer()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
-        self._role = dachi.msg.Cue(
+        self._model = OpenAILLM(procs=TextConv())
+        self._role = dachi.inst.Cue(
             text=
             """
             You must recommend a movie to the user. 
@@ -31,13 +31,13 @@ class Tutorial1(ChatTutorial):
         self._dialog = dachi.msg.ListDialog(
         )
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()))
     def make_decision(self, question) -> str:
         """
         {instructions}
 
         """
-        instruction = dachi.msg.Cue(
+        instruction = dachi.inst.Cue(
             text="""
             Decide on how to respond to the user. 
             Whether to ask a question, respond directly, probe deeper etc.
@@ -47,15 +47,15 @@ class Tutorial1(ChatTutorial):
             {question}
             """
         )
-        instruction = dachi.msg.fill(instruction, question=question)
-        instruction = dachi.msg.cat(
+        instruction = dachi.inst.fill(instruction, question=question)
+        instruction = dachi.inst.cat(
             [self._role, instruction], '\n\n'
         )
         return {
             'instructions': instruction
         }
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), to_stream=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()), to_stream=True)
     def recommendation(self, question) -> str:
         """
         {role}

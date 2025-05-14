@@ -2,8 +2,8 @@ from dachi.act import TaskStatus
 from ..base import AgentTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
 import random
+
 
 
 class DummyAction(dachi.act.Action):

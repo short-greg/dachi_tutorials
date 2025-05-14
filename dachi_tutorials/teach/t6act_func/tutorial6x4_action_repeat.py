@@ -3,13 +3,10 @@ from ..base import AgentTutorial
 import dachi
 import typing
 
-
-import dachi.asst.openai_asst
-
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 
 model = OpenAILLM(
-    procs=dachi.asst.openai_asst.TextConv(),
+    procs=TextConv(),
     kwargs={'temperature': 0.0}
 )
 

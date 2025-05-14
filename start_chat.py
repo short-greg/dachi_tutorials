@@ -50,9 +50,9 @@ from dachi_tutorials.teach.t7_storywriter import (
 from dachi_tutorials.teach.t8_flight_reserver import (
     tutorial8x1_flight_reserver1,
 )
-from dachi_tutorials.teach.t9_film_synopsis_writer import (
-    tutorial9_1_synopsis_writer,
-)
+# from dachi_tutorials.teach.t9_film_synopsis_writer import (
+#     tutorial9_1_synopsis_writer,
+# )
 
 dotenv.load_dotenv()
 st.title('ChatGPT-like Clone')
@@ -66,15 +66,15 @@ tutorial_map = {
     'Tutorial 1-5': tutorial1x5_with_history.Tutorial5,
     'Tutorial 1-6': tutorial1x6_proactive.Tutorial6,
     'Tutorial 1-7': tutorial1x7_use_string_for_model.Tutorial7,
-    # # # # 'Tutorial 1-8': tutorial1x8_use_string_for_model_with_claude.Tutorial8,
-    # # # # 'Tutorial 1-9': tutorial1x9_use_string_for_model_with_gemini.Tutorial9,
-    # # # 'Tutorial 1-10': tutorial1x10_use_string_for_model_with_assistants.Tutorial10,
+    # # # # # 'Tutorial 1-8': tutorial1x8_use_string_for_model_with_claude.Tutorial8,
+    # # # # # 'Tutorial 1-9': tutorial1x9_use_string_for_model_with_gemini.Tutorial9,
+    # # # # 'Tutorial 1-10': tutorial1x10_use_string_for_model_with_assistants.Tutorial10,
     'Tutorial 2-1': tutorial2x1_simple.Tutorial1,
     'Tutorial 2-2': tutorial2x2_with_struct.Tutorial2,
     'Tutorial 2-3': tutorial2x3_with_ref.Tutorial3,
     'Tutorial 2-4': tutorial2x4_with_glossary.Tutorial4,
     'Tutorial 2-5': tutorial2x5_instructmethod.Tutorial5,
-    # 'Tutorial 2-6': tutorial2x6_styling.Tutorial6,
+    # # 'Tutorial 2-6': tutorial2x6_styling.Tutorial6,
     'Tutorial 3-1': tutorial3x1_read_primitive.Tutorial1,
     'Tutorial 3-2': tutorial3x2_read_struct.Tutorial2,
     # 'Tutorial 3-3': tutorial3x3_read_csv.Tutorial3,
@@ -88,7 +88,7 @@ tutorial_map = {
     'Tutorial 4-5': tutorial4x5_one_to_many.Tutorial5,
     'Tutorial 7-1': tutorial7x1_write_story.Tutorial1,
     'Tutorial 8-1': tutorial8x1_flight_reserver1.Tutorial1,
-    'Tutorial 9-1': tutorial9_1_synopsis_writer.Tutorial1,
+    # 'Tutorial 9-1': tutorial9_1_synopsis_writer.Tutorial1,
     
 }
 

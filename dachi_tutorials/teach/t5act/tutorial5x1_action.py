@@ -1,7 +1,6 @@
-from ..base import AgentTutorial
+from ..base import AgentTutorial, TextConv
 import dachi
 import typing
-import dachi.asst.openai_asst
 from .utils import LLMAction
 
 

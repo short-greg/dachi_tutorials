@@ -4,7 +4,7 @@ import typing
 from abc import ABC
 import pandas as pd
 import os
-import dachi.asst.openai_asst
+import dachi.adapt.xopenai
 import opendatasets as od
 from .base import Dropdown
 import streamlit as st
@@ -28,7 +28,7 @@ class MoviesTutorial(ChatTutorial):
         self.dialog = dachi.Dialog()
 
         self.ai_model = OpenAILLM(
-            resp_procs=dachi.asst.openai_asst.TextConv(),
+            resp_procs=dachi.adapt.xopenai.TextConv(),
             temperature=0.0
         )
         self.dialog.system(

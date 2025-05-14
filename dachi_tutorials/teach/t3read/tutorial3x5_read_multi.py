@@ -1,8 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 
 
 import pydantic
@@ -46,9 +45,9 @@ class Tutorial5(ChatTutorial):
     @dachi.asst.signaturemethod(
         # 'model', 
         # [dachi.adapt.KVConv(Project), dachi.adapt.KVConv(Role)]
-        OpenAILLM(procs=dachi.asst.openai_asst.TextConv()),
-        reader=dachi.asst.MultiTextConv(outs=[
-            dachi.asst.KVConv(key_descr=Project), dachi.asst.KVConv(key_descr=Role)]
+        OpenAILLM(procs=TextConv()),
+        reader=dachi.msg.MultiTextConv(outs=[
+            dachi.msg.KVConv(key_descr=Project), dachi.msg.KVConv(key_descr=Role)]
         )
     )
     def decide_project(self, message) -> typing.Tuple[Project, Role]:
@@ -60,8 +59,8 @@ class Tutorial5(ChatTutorial):
         Output as key values with this format
         {template}
         """
-        template = dachi.asst.MultiTextConv(outs=[
-            dachi.asst.KVConv(key_descr=Project), dachi.asst.KVConv(key_descr=Role)]
+        template = dachi.msg.MultiTextConv(outs=[
+            dachi.msg.KVConv(key_descr=Project), dachi.msg.KVConv(key_descr=Role)]
         ).template()
         return {'template': template}
 

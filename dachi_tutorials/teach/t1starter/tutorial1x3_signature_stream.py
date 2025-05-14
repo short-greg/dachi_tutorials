@@ -1,8 +1,7 @@
-from ..base import ChatTutorial
+import dachi.adapt.xopenai
+from ..base import ChatTutorial, TextConv
 import dachi
 import typing
-import dachi.asst.openai_asst
-
 from ..base import OpenAILLM
 
 class Tutorial3(ChatTutorial):
@@ -15,8 +14,8 @@ class Tutorial3(ChatTutorial):
 
     @dachi.asst.signaturemethod(
         OpenAILLM(
-            procs=[dachi.asst.openai_asst.TextConv('content')]
-        ), out='content', to_stream=True)
+            procs=[TextConv('content')]
+        ), llm_out='content', to_stream=True)
     def answer_question(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else 
         

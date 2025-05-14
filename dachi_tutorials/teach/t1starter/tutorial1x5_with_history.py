@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
+from ..base import TextConv
 from ..base import OpenAILLM
 
 
@@ -14,18 +14,18 @@ class Tutorial5(ChatTutorial):
     def __init__(self):
 
         self._dialog = dachi.msg.ListDialog()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
+        self._model = OpenAILLM(procs=TextConv())
 
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()))
     def pick_movies(self, question) -> str:
         """List up several movies related to the user's question {question}
         """
         pass
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()))
     def recommendation(self, question) -> str:
         """Answer the user's question about movies. Don't talk about anything else.
         
@@ -42,7 +42,7 @@ class Tutorial5(ChatTutorial):
 
     def forward(self, user_message: str) -> typing.Iterator[str]:
         
-        cue: dachi.msg.Cue = self.recommendation.i(user_message)
+        cue: dachi.inst.Cue = self.recommendation.i(user_message)
         self._dialog[0] = (
             dachi.msg.Msg(role='system', content=cue.text)
         )

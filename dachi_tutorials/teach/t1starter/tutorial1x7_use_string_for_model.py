@@ -1,9 +1,8 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
 
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 
 
 class Tutorial7(ChatTutorial):
@@ -14,11 +13,11 @@ class Tutorial7(ChatTutorial):
         self.model = 'gpt-4o-mini'
         self._dialog = dachi.msg.ListDialog()
         self._renderer = dachi.msg.FieldRenderer('content')
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
+        self._model = OpenAILLM(procs=TextConv())
 
     def clear(self):
         self._dialog = dachi.msg.ListDialog(
-            msg_renderer=dachi.msg.RenderMsgField()
+            renderer=dachi.msg.FieldRenderer()
         )
 
     @dachi.asst.signaturemethod(engine='_model')

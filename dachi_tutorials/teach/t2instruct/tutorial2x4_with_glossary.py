@@ -1,12 +1,11 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
-from ..base import OpenAILLM
-from dachi.msg import Term
+from ..base import OpenAILLM, TextConv
+from dachi.inst import Term
 
 
-class Role(dachi.msg.Description):
+class Role(dachi.inst.Description):
 
     descr: str
 
@@ -28,7 +27,7 @@ class Tutorial4(ChatTutorial):
         self.model = 'gpt-4o-mini'
         self._dialog = dachi.msg.ListDialog()
         self._renderer = dachi.msg.FieldRenderer()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
+        self._model = OpenAILLM(procs=TextConv())
         self._role = Role(
             name="Movie Recommender",
             descr=
@@ -38,7 +37,7 @@ class Tutorial4(ChatTutorial):
             going so you can suggest a movie that will be satisfying to the user.
             """
         )
-        self._glossary = dachi.msg.Glossary().add(
+        self._glossary = dachi.inst.Glossary().add(
             Term('Sastified', 'The user is satisfied with the recommendation')
         ).add(
             Term('Dissastified', 'The user is satisfied with the recommendation'),
@@ -51,7 +50,7 @@ class Tutorial4(ChatTutorial):
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()))
     def evaluate_satisfaction(self, conversation) -> str:
         """
         Evaluate whether the user is satisfied with the movie recommendations you've given him 
@@ -66,13 +65,13 @@ class Tutorial4(ChatTutorial):
             'criteria': self._glossary.render()
         }
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()))
     def make_decision(self, conversation) -> str:
         """
         {instructions}
 
         """
-        instruction = dachi.msg.Cue(
+        instruction = dachi.inst.Cue(
             text="""
 
             Decide on how to respond to the user based on your role: {role}. 
@@ -90,12 +89,12 @@ class Tutorial4(ChatTutorial):
             {conversation}
             """
         )
-        ref = dachi.msg.Ref(desc=self._role)
+        ref = dachi.inst.Ref(desc=self._role)
         satisfaction = self.evaluate_satisfaction(conversation)
-        instruction = dachi.msg.fill(
+        instruction = dachi.inst.fill(
             instruction, conversation=conversation, satisfaction=satisfaction, role=ref
         )
-        instruction = dachi.msg.cat(
+        instruction = dachi.inst.cat(
             [self._role, instruction], '\n\n'
         )
         return {
@@ -103,7 +102,7 @@ class Tutorial4(ChatTutorial):
         }
 
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), to_stream=True
+        OpenAILLM(procs=TextConv()), to_stream=True
     )
     def recommendation(self, conversation) -> str:
         """

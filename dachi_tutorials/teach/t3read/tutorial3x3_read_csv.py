@@ -1,8 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 
 import pydantic
 
@@ -30,8 +29,8 @@ class Tutorial3(ChatTutorial):
         self._dialog = dachi.msg.ListDialog()
 
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=dachi.asst.openai_asst.TextConv()),
-        dachi.asst.CSVRowParser(indexed=False, delim=',', cols=Role)
+        OpenAILLM(procs=TextConv()),
+        dachi.msg.CSVRowParser(indexed=False, delim=',', cols=Role)
     )
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
@@ -44,7 +43,7 @@ class Tutorial3(ChatTutorial):
         {text}
         """
         # TODO: FINALIZE HOW CSV READ WORKS.. PERHAPS MAKE NAME OPTIONAL
-        return {'template': dachi.asst.CSVConv(indexed=False, delim=',', cols=Role).template()}
+        return {'template': dachi.msg.CSVConv(indexed=False, delim=',', cols=Role).template()}
 
     def render_header(self):
         pass

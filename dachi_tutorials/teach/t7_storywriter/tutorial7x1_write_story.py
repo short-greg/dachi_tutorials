@@ -1,9 +1,8 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
 
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 
 import pydantic
 
@@ -34,7 +33,7 @@ class Tutorial1(ChatTutorial):
     def __init__(self):
 
         self.model = OpenAILLM(
-            procs=dachi.asst.openai_asst.TextConv()
+            procs=TextConv()
         )
         self._dialog = dachi.msg.ListDialog()
         self.role = "You are a storywriter who writes original fictional stories."

@@ -6,7 +6,13 @@ import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx
 import openai
+from dachi.msg import Msg, MsgProc
 
+
+from dachi.adapt.xopenai import (
+    LLM, TextConv, ToolConv,
+    StructConv
+)
 
 class Option(ABC):
 
@@ -125,7 +131,8 @@ class OpenAILLM(
         kwargs = kwargs or {}
         kwargs['model'] = model
         kwargs['temperature'] = temperature
-        
+        if isinstance(procs, MsgProc):
+            procs = [procs]
         super().__init__(
             procs=procs,
             kwargs=kwargs,
@@ -133,12 +140,14 @@ class OpenAILLM(
     
     def forward(
         self, 
-        messages: typing.List[typing.Dict], **kwargs
+        messages: typing.List[Msg], **kwargs
     ):
+        messages = [messages] if isinstance(messages, Msg) else messages
         client = openai.Client()
         for proc in self.procs:
-            if isinstance(proc, dachi.asst.RespConv):
+            if isinstance(proc, dachi.msg.RespConv):
                 kwargs.update(proc.prep())
+        messages = [message.to_input() for message in messages]
         return dachi.asst.llm_forward(
             client.chat.completions.create, 
             messages=messages,
@@ -148,9 +157,11 @@ class OpenAILLM(
 
     async def aforward(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.AsyncClient()
+        messages = [messages] if isinstance(messages, Msg) else messages
         for proc in self.procs:
-            if isinstance(proc, dachi.asst.RespConv):
+            if isinstance(proc, dachi.msg.RespConv):
                 kwargs.update(proc.prep())
+        messages = [message.to_input() for message in messages]
         return await dachi.asst.llm_aforward(
             client.chat.completions.create, 
             messages=messages,
@@ -160,10 +171,11 @@ class OpenAILLM(
 
     def stream(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.Client()
-        print(messages)
+        messages = [messages] if isinstance(messages, Msg) else messages
         for proc in self.procs:
-            if isinstance(proc, dachi.asst.RespConv):
+            if isinstance(proc, dachi.msg.RespConv):
                 kwargs.update(proc.prep())
+        messages = [message.to_input() for message in messages]
         for msg in dachi.asst.llm_stream(
             client.chat.completions.create, 
             messages=messages,
@@ -175,9 +187,11 @@ class OpenAILLM(
 
     async def astream(self, messages: typing.List[typing.Dict], **kwargs):
         client = openai.AsyncClient()
+        messages = [messages] if isinstance(messages, Msg) else messages
         for proc in self.procs:
-            if isinstance(proc, dachi.asst.RespConv):
+            if isinstance(proc, dachi.msg.RespConv):
                 kwargs.update(proc.prep())
+        messages = [message.to_input() for message in messages]
         async for msg in await dachi.asst.llm_astream(
             client.chat.completions.create, 
             messages=messages,

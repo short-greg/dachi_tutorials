@@ -1,7 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
+from ..base import TextConv
 from ..base import OpenAILLM
 
 
@@ -13,12 +13,12 @@ class Tutorial6(ChatTutorial):
         self.model = 'gpt-4o-mini'
         self._renderer = dachi.msg.FieldRenderer('content')
         self._dialog = dachi.msg.ListDialog()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
+        self._model = OpenAILLM(procs=TextConv())
 
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()))
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()))
     def make_decision(self, question) -> str:
         """
         You must recommend a movie to the user. 
@@ -33,7 +33,7 @@ class Tutorial6(ChatTutorial):
         """
         pass
 
-    @dachi.asst.signaturemethod(OpenAILLM(procs=dachi.asst.openai_asst.TextConv()), to_stream=True)
+    @dachi.asst.signaturemethod(OpenAILLM(procs=TextConv()), to_stream=True)
     def recommendation(self, question) -> str:
         """You must recommend a movie to the user.
         

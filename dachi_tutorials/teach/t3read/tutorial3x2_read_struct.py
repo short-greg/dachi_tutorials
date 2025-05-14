@@ -1,8 +1,7 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 
 
 import pydantic
@@ -35,8 +34,8 @@ class Tutorial2(ChatTutorial):
         self._messages = []
 
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=[dachi.asst.openai_asst.TextConv()]), 
-        out='content'
+        OpenAILLM(procs=[TextConv()]), 
+        llm_out='content'
     )
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
@@ -48,7 +47,7 @@ class Tutorial2(ChatTutorial):
         Output the Role as valid JSON defined by this Pydantic template. Do not use any markdown 
         {template}
         """
-        return {'template': dachi.asst.PydanticConv(name='content', out_cls=Role).template()}
+        return {'template': dachi.msg.PydanticOut(name='content', out_cls=Role).template()}
 
     def render_header(self):
         pass
@@ -59,6 +58,7 @@ class Tutorial2(ChatTutorial):
         self._messages.append(user_message)
 
         role = self.decide_role(self._messages[-1])
+        print(role)
         response = f'Your role is {role.name}, {role.description}'
         yield response
 

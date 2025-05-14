@@ -1,10 +1,9 @@
 from dachi.act import TaskStatus
 import dachi
 import typing
-import dachi.asst.openai_asst
 from abc import abstractmethod
 import random
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 import pydantic
 
 
@@ -17,7 +16,7 @@ class LLMAction(dachi.act.Action):
         super().__init__(**data)
 
         self._model = OpenAILLM(
-            procs=dachi.asst.openai_asst.TextConv(),
+            procs=TextConv(),
             kwargs={'temperature': 1.0}
         )
 

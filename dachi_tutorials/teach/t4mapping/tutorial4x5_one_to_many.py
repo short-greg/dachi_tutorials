@@ -2,9 +2,8 @@ from ..base import ChatTutorial
 import dachi
 import typing
 import asyncio
-import dachi.asst.openai_asst
 
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 
 
 class Tutorial5(ChatTutorial):
@@ -18,7 +17,7 @@ class Tutorial5(ChatTutorial):
     def __init__(self):
 
         self._dialog = dachi.msg.ListDialog()
-        self._model = OpenAILLM(procs=dachi.asst.openai_asst.TextConv())
+        self._model = OpenAILLM(procs=TextConv())
 
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
@@ -66,7 +65,7 @@ class Tutorial5(ChatTutorial):
 
         results = asyncio.run(dachi.proc.async_map(
             [self.main_points, self.keywords, self.abstract],
-            dachi.msg.render(split_message)
+            dachi.inst.render(split_message)
         ))
         summary = '\n\n'.join(results)
 

@@ -1,9 +1,8 @@
 from ..base import ChatTutorial
 import dachi
 import typing
-import dachi.asst.openai_asst
 
-from ..base import OpenAILLM
+from ..base import OpenAILLM, TextConv
 
 import pydantic
 
@@ -31,8 +30,8 @@ class Tutorial4(ChatTutorial):
         self._messages = []
 
     @dachi.asst.signaturemethod(
-        OpenAILLM(procs=dachi.asst.openai_asst.TextConv()),
-        reader=dachi.asst.KVConv(key_descr=Role)
+        OpenAILLM(procs=TextConv()),
+        reader=dachi.msg.KVConv(key_descr=Role)
     )
     def decide_role(self, text) -> Role:
         """You need to cast members of a play. 
@@ -45,7 +44,7 @@ class Tutorial4(ChatTutorial):
         {template}
         """
 
-        return {'template': dachi.asst.KVConv(key_descr=Role).template()}
+        return {'template': dachi.msg.KVConv(key_descr=Role).template()}
 
     def render_header(self):
         pass
