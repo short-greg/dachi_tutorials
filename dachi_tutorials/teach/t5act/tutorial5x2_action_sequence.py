@@ -24,23 +24,23 @@ class ProposeSynopsis(LLMAction):
         likely to generate revenue.
         """
 
-    def act(self) -> TaskStatus:
+    def act(self, reset: bool=False) -> TaskStatus:
 
         if random.random() > 0.002:
             return dachi.act.TaskStatus.RUNNING
         
         message = dachi.msg.Msg(role='system', content=self.prompt)
         
-        self.response.set(self._model(message.to_list_input())['content'])
+        self.response.set(self._model(message)['content'])
+        print(self.response.get())
         return dachi.act.TaskStatus.SUCCESS
 
 
 class SelfCritique(LLMAction):
 
-    synopsis: dachi.store.Shared
-
     def __init__(self, synopsis: dachi.store.Shared, critique: dachi.store.Shared):
-        super().__init__(response=critique, synopsis=synopsis)
+        super().__init__(response=critique)
+        self.synopsis = synopsis
 
     @property
     def prompt(self) -> str:
@@ -60,20 +60,19 @@ class SelfCritique(LLMAction):
         {self.synopsis.get()}
         """
 
-    def act(self) -> TaskStatus:
+    def act(self, reset: bool=False) -> TaskStatus:
         
         message = dachi.msg.Msg(role='system', content=self.prompt)
         
-        self.response.set(self._model(message.to_list_input())['content'])
+        self.response.set(self._model(message)['content'])
         return dachi.act.TaskStatus.SUCCESS
 
 
 class Approval(LLMAction):
 
-    critique: dachi.store.Shared
-
     def __init__(self, critique: dachi.store.Shared, approval: dachi.store.Shared):
-        super().__init__(response=approval, critique=critique)
+        super().__init__(response=approval)
+        self.critique = critique
 
     @property
     def prompt(self) -> str:
@@ -91,11 +90,11 @@ class Approval(LLMAction):
         {self.critique.get()}
         """
     
-    def act(self) -> TaskStatus:
+    def act(self, reset: bool=False) -> TaskStatus:
         
         message = dachi.msg.Msg(role='system', content=self.prompt)
         
-        self.response.set(self._model(message.to_list_input())['content'])
+        self.response.set(self._model(message)['content'])
         if self.response.get().lower() == 'accept':
             return dachi.act.TaskStatus.SUCCESS
         return dachi.act.TaskStatus.FAILURE
@@ -117,13 +116,15 @@ class Tutorial2(AgentTutorial):
             SelfCritique(self.synopsis, self.critique),
             Approval(self.critique, self.approval)
         ])
+        self._reset = False
 
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
 
     def tick(self) -> typing.Optional[str]:
         
-        status = self._task.tick()
+        status = self._task.tick(reset=self._reset)
+        self._reset = False
 
         if status.success:
             response = (
@@ -136,6 +137,7 @@ class Tutorial2(AgentTutorial):
             self._dialog.append(
                 dachi.msg.Msg(role='assistant', content=response)
             )
+            self._reset = True
         elif status.failure:
             response = (
                 f"The synopsis was rejected\n"
@@ -146,13 +148,14 @@ class Tutorial2(AgentTutorial):
             self._dialog.append(
                 dachi.msg.Msg(role='assistant', content=response)
             )
+            self._reset = True
     
         if status.is_done:
             self.synopsis.data = None
             self.approval.data = None
             self.critique.data = None
 
-            self._task.reset()
+            self._task.reset_status()
 
     # def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
     #     for message in self._dialog:

@@ -35,7 +35,8 @@ class Tutorial1(AgentTutorial):
     def tick(self) -> typing.Optional[str]:
         
         status = dachi.act.taskf(
-            self.propose_synopsis, out=self._response
+            self.propose_synopsis, 
+            out=self._response
         )()
         if status.success:
             self._callback(self._response.get())

@@ -147,6 +147,7 @@ class OpenAILLM(
         for proc in self.procs:
             if isinstance(proc, dachi.msg.RespConv):
                 kwargs.update(proc.prep())
+        
         messages = [message.to_input() for message in messages]
         return dachi.asst.llm_forward(
             client.chat.completions.create, 

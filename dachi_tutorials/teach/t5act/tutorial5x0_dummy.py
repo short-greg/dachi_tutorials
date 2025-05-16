@@ -10,16 +10,16 @@ class DummyAction(dachi.act.Action):
 
     response: typing.Optional[typing.Any] = None
 
-    def act(self) -> TaskStatus:
+    def act(self, reset: bool=False) -> TaskStatus:
 
         if random.random() < 0.002:
             self.response = "Dummy message...."
             return dachi.act.TaskStatus.SUCCESS
         return dachi.act.TaskStatus.FAILURE
         
-    def reset(self):
+    def reset_status(self):
         self.response = None
-        return super().reset()
+        return super().reset_status()
 
 
 class Tutorial0(AgentTutorial):
@@ -51,7 +51,7 @@ class Tutorial0(AgentTutorial):
                 assistant
             )
 
-        self._task.reset()
+        self._task.reset_status()
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:

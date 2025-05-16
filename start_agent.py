@@ -13,10 +13,15 @@ from dachi_tutorials.teach.t5act import (
     tutorial5x4_action_repeat,
 )
 from dachi_tutorials.teach.t6act_func import (
-    tutorial6x1_action, tutorial6x2_action_sequence,
+    tutorial6x1_action, 
+    tutorial6x2_action_sequence,
     tutorial6x3_action_fallback,
     tutorial6x4_action_repeat
 )
+
+from dachi_tutorials.teach.t10_train_ridge_regression import (
+    tutorial10x1_ridge_regression
+) 
 
 from streamlit_autorefresh import st_autorefresh
 # from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
@@ -35,6 +40,7 @@ tutorial_map = {
     'Tutorial 6-2': tutorial6x2_action_sequence.Tutorial2,
     'Tutorial 6-3': tutorial6x3_action_fallback.Tutorial3,
     'Tutorial 6-4': tutorial6x4_action_repeat.Tutorial4,
+    'Tutorial 10-1': tutorial10x1_ridge_regression.Tutorial1,
 }
 
 

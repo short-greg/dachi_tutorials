@@ -59,6 +59,7 @@ class Tutorial4(AgentTutorial):
         self._ctx = dachi.store.ContextStorage()
         self._timer = dachi.act.RandomTimer(seconds_lower=0.5, seconds_upper=1.5)
         self._dialog = dachi.msg.ListDialog()
+        self._reset = False
 
     def clear(self):
         self._dialog = dachi.msg.ListDialog()
@@ -78,7 +79,8 @@ class Tutorial4(AgentTutorial):
             ], self._ctx.seq)
         )
         
-        status = sequence()
+        status = sequence(reset=self._reset)
+        self._reset = False
 
         if status.is_done:
             response = (
@@ -88,10 +90,11 @@ class Tutorial4(AgentTutorial):
             self._dialog.append(
                 dachi.msg.Msg(role='assistant', content=response)
             )
+            self._reset = True
     
         if status.is_done:
             self._ctx.reset()
-            self._timer.reset()
+            self._timer.reset_status()
 
     def messages(self, include: typing.Callable[[str, str], bool]=None) -> typing.Iterator[typing.Tuple[str, str]]:
         for message in self._dialog:
